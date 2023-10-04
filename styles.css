@@ -1,0 +1,284 @@
+@font-face
+{
+  font-family: "Calibri";
+}
+
+html, body
+{
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  background-image: url(https://wallpaperaccess.com/full/5668740.jpg);
+  background-size: cover;
+}
+
+body
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  font-family: Calibri, Arial, serif;
+  text-align: center;
+}
+
+
+#graph, #options {
+  border: 3px solid white;
+}
+
+
+
+
+
+
+#options {
+  vertical-align: top;
+  background-color: #DBFAFC;
+}
+
+#remove_node{
+  visibility: hidden;
+}
+
+#warning
+{
+  font-style: italic;
+}
+
+.group
+{
+  display: flex;
+  flex-direction: column;
+  border: 3px solid black;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+ background: #ffffff;
+  font-weight: bold;
+  position: relative;
+}
+
+.option
+{
+  width: 190px;
+  padding: 2px;
+}
+
+#box
+{
+  padding: 3px;
+}
+
+#showCoords
+{
+  display: inline-block;
+  flex-direction: row;
+}
+
+.canvas-container {
+  display: flex;
+  flex-direction: row;
+  display:block;
+  position: relative;
+}
+
+
+#e_mode{
+  display: none;
+  position: absolute;
+  padding: 1px;
+  border-radius: 0px;
+  z-index: 1; /* Ensure the element is above the canvas */
+  font-style: italic;
+  top: 40px; /* Adjust the top position as needed */
+  right: 15px; /* Adjust the right position as needed */
+}
+#v_mode{
+  display: block;
+  position: absolute;
+  padding: 1px;
+  border-radius: 0px;
+  z-index: 1; /* Ensure the element is above the canvas */
+  font-style: italic;
+  top: 22px; /* Adjust the top position as needed */
+  right: -20px; /* Adjust the right position as needed */
+}
+
+/*zoom slider*/
+.slider {
+  position: absolute;
+  bottom: 55px; /* Adjust the bottom position as needed */
+  right: 6px; /* Adjust the right position as needed */
+  align-items: center;
+  z-index: 1; /* Ensure the element is above the canvas */
+  background-color: rgba(255, 255, 255, 0.7); /* Background color with opacity */
+  border-radius: 5px;
+  padding: 4px;
+  display:flex;
+}
+
+
+.sep {
+  clear: both;
+}
+
+/*edge width slider*/
+.slider1 {
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+}
+
+.slider-input1 {
+  flex:1;
+  width: 170px;
+}
+
+.slider-label1 {
+  width: 30px;
+  font-weight: normal;
+}
+
+
+.line-1 {
+  height: 2px;
+  width: 210px;
+  background: midnightblue;
+  margin: 10px;
+}
+
+
+/*Tabs:*/
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 1px;
+  margin-top: 2px;
+  flex-wrap: wrap
+}
+
+.tab {
+  position: relative;
+  padding: 5px 20px;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  margin-right: -1px;
+  margin-bottom: -1px; /* Add margin to separate tabs when they wrap */
+  color: #333;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tab.active {
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+.tab:hover {
+  background-color: #FFF5EE;
+  opacity: 0.8; /* Reduce opacity on hover */
+}
+
+.add-tab{
+  background: none;
+}
+/* Style the close button (x) */
+.close-tab {
+  position: relative;
+  margin-left: 8px;
+  color: #333; /* Default color */
+  transition: color 0.3s; /* Transition for color property */
+}
+
+/* Circle effect for close button on hover */
+.close-tab::before {
+  content: "x"; /* Display the "x" character */
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  line-height: 9px; /* Center the "x" vertically */
+  /*text-align: center; !* Center the "x" horizontally *!*/
+  background-color: transparent; /* Transparent background for the circle */
+  border: 2px solid gray; /* Border for the circle */
+  border-radius: 50%; /* Make it circular */
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%) scale(0); /* Initial scale to hide it */
+  transition: transform 0.3s, border-color 0.3s; /* Transitions for transform and border-color properties */
+  /*color: gray; !* Text color for the "x" *!*/
+}
+
+/* Show the circle effect on hover */
+.close-tab:hover::before {
+  transform: translate(-50%, -50%) scale(1); /* Scale it up to show the circle */
+  background-color: lightgray; /* Grey background for the circle on hover */
+  border-color: transparent; /* Transparent border on hover */
+}
+
+
+/* CSS for the context menu container */
+.context-menu-container {
+  position: absolute;
+  z-index: 1000;
+  overflow-y: auto; /* Make the context menu scrollable */
+  max-height: 200px; /* Set a maximum height for the menu */
+}
+
+/* Style for the context menu items */
+.context-menu {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 5px;
+  cursor: pointer;
+}
+
+
+
+/* Styles for the info button */
+.info-button {
+  width: 15px;
+  height: 15px;
+  background-color: #007bff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.popup {
+  display: none;
+  background-color: #fff;
+  width: 320px; /* Adjust the width as needed */
+  text-align: left;
+  position: absolute;
+  z-index: 2; /* Ensure the popup is above other content */
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Styles for the popup content */
+.popup-content {
+  padding: 10px;
+}
+
+/* Styles for showing the popup */
+.popup.active {
+  display: block;
+}
+
+
