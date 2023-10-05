@@ -307,4 +307,31 @@ body
   display: block;
 }
 
+/* Style for the tab list window */
+#tabListWindow {
+  display: none;
+  position: absolute;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  max-height: 150px; /* Adjust the maximum height as needed */
+  overflow-y: auto;
 
+  width: 150px;
+  font-weight: bold;
+  /*width: 100px; !* Set the width for each button *!*/
+  padding: 5px; /* Add padding to style the button's content */
+  margin-right: 5px; /* Add margin between buttons for spacing */
+  margin-top: 3px;
+  background-color: white; /* Button background color */
+  color: black; /* Text color */
+  /*border: none; !* Remove the button border *!*/
+  border-radius: 5px; /* Add rounded corners */
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* Style for the hovered row */
+.hovered {
+  background-color: lightskyblue; /* Adjust the color as desired */
+  cursor: pointer;
+  color: white;
+}

@@ -599,18 +599,111 @@ $(document).ready(function(){
 
   // // Edit tag name button
   $("#edit_tag").click(function() {
-    // Prompt the user for text input and store the result in a variable
-    var userInput = prompt("Enter text:");
+    if (edit_mode){
+      // Prompt the user for text input and store the result in a variable
+      var userInput = prompt("Enter text:");
 
-    // Check if the user entered text
-    if (userInput !== null) {
-      // You can now use the 'userInput' variable to store the entered text
-      // console.log("User input: " + userInput);
-      polygons_tag_text[current_polygon_index] = userInput;
-      drawPolygons();
+      // Check if the user entered text
+      if (userInput !== null) {
+        // You can now use the 'userInput' variable to store the entered text
+        // console.log("User input: " + userInput);
+        polygons_tag_text[current_polygon_index] = userInput;
+        drawPolygons();
+      }
     }
 
+
   });
+
+
+  function getTabName(tabElement) {
+    const tabText = tabElement.textContent.trim();
+    if (tabText==="Open Layer"){
+      return tabText;
+    }
+    return tabText.substring(0, tabText.length - 1); // Remove the last character (the close-button)
+
+  }
+  // // Move Polygon to other layer button
+  $("#switch-layer").click(function() {
+    // Get the button element
+    var button = document.getElementById('switch-layer');
+
+    // Create the tab list window
+    var tabListWindow = document.createElement('div');
+    tabListWindow.id = 'tabListWindow';
+
+    // Get all the tab elements on your page
+    var tabElements = document.querySelectorAll('.tab');
+
+    // Create a list of tab names as options
+    var options = [];
+    tabElements.forEach(function(tabElement) {
+      var tabId = tabElement.getAttribute('data-tab');
+      var tabName = getTabName(tabElement); // Use the getTabName function to remove the close-button
+
+      var option = document.createElement('div');
+      option.textContent = tabName;
+      option.classList.add('tabs-menu'); // Add the 'option' class
+
+      // Add a click event listener to each option
+      option.addEventListener('click', function() {
+        // Save the tab ID when an option is clicked
+        alert('You clicked on tab ID: ' + tabId);
+
+        // Close the tab list window
+        tabListWindow.style.display = 'none';
+      });
+
+      options.push(option);
+
+    });
+
+    // Append the options to the tab list window
+    options.forEach(function(option) {
+      tabListWindow.appendChild(option);
+    });
+
+    // Position the tab list window below the button
+    var buttonRect = button.getBoundingClientRect();
+    tabListWindow.style.top = buttonRect.bottom + 'px';
+    tabListWindow.style.left = buttonRect.left + 'px';
+
+    // Display the tab list window
+    tabListWindow.style.display = 'block';
+
+    // Add a mouseout event listener to the tab list window
+    tabListWindow.addEventListener('mouseout', function(event) {
+      var relatedTarget = event.relatedTarget;
+      if (!relatedTarget || !tabListWindow.contains(relatedTarget)) {
+        // Mouse is out of the tab list window, so hide it
+        tabListWindow.style.display = 'none';
+      }
+    });
+
+    // Add a mouseover event listener to apply the hover effect
+    tabListWindow.addEventListener('mouseover', function(event) {
+      var target = event.target;
+      if (target.classList.contains('tabs-menu')) {
+        // Apply the hover class when hovering over an option
+        target.classList.add('hovered');
+      }
+    });
+
+    // Add a mouseout event listener to remove the hover effect
+    tabListWindow.addEventListener('mouseout', function(event) {
+      var target = event.target;
+      if (target.classList.contains('tabs-menu')) {
+        // Remove the hover class when moving away from an option
+        target.classList.remove('hovered');
+      }
+    });
+
+    // Append the tab list window to the document
+    document.body.appendChild(tabListWindow);
+
+  });
+
 
 
   // ---------------------------------------- Auxiliary functions ----------------------------------------
@@ -791,7 +884,7 @@ $(document).ready(function(){
       // Set the text size (adjust this as needed)
       var textSize = 15;
 
-// Set the text properties
+      // Set the text properties
       c.font = textSize + "px Calibri";
       c.fillStyle = "white";
       c.textAlign = "center";
@@ -802,18 +895,18 @@ $(document).ready(function(){
       var x = topCoord[0];
       var y = output(topCoord[1])-13;
 
-// Measure the text's width
+      // Measure the text's width
       var textWidth = c.measureText(text).width;
       if (textWidth>0){
         var padding=4;
-// Calculate the bounding rectangle coordinates and dimensions
+        // Calculate the bounding rectangle coordinates and dimensions
         var rectX = x - textWidth / 2; // X-coordinate of the top-left corner of the rectangle
         var rectY = y - textSize / 2 - 5; // Y-coordinate of the top-left corner of the rectangle
         var rectWidth = textWidth; // Width of the rectangle
         var rectHeight = textSize + padding; // Height of the rectangle (including rounded edges)
         var cornerRadius = 4.5; // Radius for the upper edges
 
-// Draw the filled bounding rectangle with only the upper edges rounded
+        // Draw the filled bounding rectangle with only the upper edges rounded
         c.fillStyle = "black"; // Fill color
         c.strokeStyle = "black"; // Border color
         c.lineWidth = 2; // Border width
