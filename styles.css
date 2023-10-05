@@ -24,7 +24,7 @@ body
 }
 
 
-#graph, #options {
+#graph {
   border: 3px solid white;
 }
 
@@ -33,10 +33,6 @@ body
 
 
 
-#options {
-  vertical-align: top;
-  background-color: #DBFAFC;
-}
 
 #remove_node{
   visibility: hidden;
@@ -56,15 +52,50 @@ body
   align-items: center;
   justify-content: center;
   padding: 3px;
- background: #ffffff;
+  background-color: rgba(255, 255, 255, 0.4);
+  /*: 0.7;*/
   font-weight: bold;
   position: relative;
 }
 
 .option
 {
-  width: 190px;
-  padding: 2px;
+  width: 220px;
+  font-weight: bold;
+  /*width: 100px; !* Set the width for each button *!*/
+  padding: 5px; /* Add padding to style the button's content */
+  margin-right: 5px; /* Add margin between buttons for spacing */
+  margin-top: 3px;
+  background-color: white; /* Button background color */
+  color: black; /* Text color */
+  /*border: none; !* Remove the button border *!*/
+  border-radius: 5px; /* Add rounded corners */
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+/* Hover style */
+.option:hover {
+  background-color: black; /* Change the background color to black on hover */
+  color: white; /* Change the text color to white on hover */
+  border-color: black; /* Change the border color to black on hover */
+}
+/* Style for the container div */
+.button-container {
+  display: flex; /* Use flexbox to arrange buttons side by side */
+  width: 250px;
+}
+
+/* Style for the container div */
+.button-container-2 {
+  display: flex; /* Use flexbox to arrange buttons side by side */
+  width: 120px;
+  margin-right: 100px;
+}
+
+/* Style for the container div */
+.button-container-3 {
+  display: flex;
+  align-items: center; /* Center items vertically within the row */
+  margin-bottom: 3px;
 }
 
 #box
@@ -72,11 +103,6 @@ body
   padding: 3px;
 }
 
-#showCoords
-{
-  display: inline-block;
-  flex-direction: row;
-}
 
 .canvas-container {
   display: flex;
@@ -133,8 +159,8 @@ body
 }
 
 .slider-input1 {
-  flex:1;
-  width: 170px;
+  /*flex:1;*/
+  width: 120px;
 }
 
 .slider-label1 {
@@ -145,9 +171,9 @@ body
 
 .line-1 {
   height: 2px;
-  width: 210px;
-  background: midnightblue;
-  margin: 10px;
+  width: 230px;
+  background: black;
+  margin: 7px;
 }
 
 

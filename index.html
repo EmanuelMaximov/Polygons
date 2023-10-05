@@ -32,7 +32,7 @@
 
   <div class="sep"></div>
   <!--Canvas-->
-  <canvas id="graph">Your browser does not support the HTML5 canvas tag.</canvas>
+  <canvas id="graph" style="text-rendering: optimizeLegibility;">Your browser does not support the HTML5 canvas tag.</canvas>
   <div class="sep"></div>
 
 <!--  Credits-->
@@ -72,33 +72,48 @@
     <span >Load Image</span>
     <input class="option" type="file" id="inputFile">
     <div class="line-1"></div>
-    <div id="showCoords_text">Show co-ordinates<input id="showCoords" type="checkbox" checked></div>
-    <button class="option" id="clear_pol">Clear polygons</button>
-    <button class="option" id="clear_screen">Clear screen</button>
-    <div class="line-1"></div>
-
-
-    <button class="option" id="add_polygon">Add Polygon</button>
-    <button class="option" id="delete_polygon">Delete Polygon</button>
-    <div class="line-1"></div>
-    <button class="option" id="select_nodes">Select nodes</button>
-    <button class="option" id="cancel_select_nodes">Cancel Selection</button>
-    <button class="option" id="remove_node">Remove nodes</button>
-    <div class="line-1"></div>
-
-    <span >Edge Color</span>
-    <input class="option" id="my-pen-color" type="color" />
-
-    <span >Edge Width</span>
-    <div class="slider1">
-      <span class="slider-label1">1px</span>
-      <input id="my-pen-width" class="slider-input1" type="range" value="2" step="1" min="1" max="7" title="Move the slider to change the value"/>
-      <span class="slider-label1">7px</span>
+    <div  style="margin-bottom: 3px;">Show co-ordinates<input id="showCoords" type="checkbox"></div>
+    <div  style="margin-bottom: 3px;">Show Nodes<input id="showNodes" type="checkbox" checked></div>
+    <div class="button-container">
+      <button class="option" id="clear_pol">Clear Polygons</button>
+      <button class="option" id="clear_screen">Clear Screen</button>
     </div>
-    <button class="option" id="Change_color">Change color</button>
-    <button class="option" id="Change_width">Change width</button>
+    <div class="line-1"></div>
+
+    <div class="button-container">
+      <button class="option" id="add_polygon">Add Polygon</button>
+      <button class="option" id="delete_polygon">Delete Polygon</button>
+    </div>
+    <div class="line-1"></div>
+    <div class="button-container">
+      <button class="option" id="edit_tag">Edit Tag Name</button>
+      <button class="option" id="switch-layer">Switch Layer</button>
+    </div>
+    <div class="line-1"></div>
+    <div class="button-container-2">
+      <button class="option" id="select_nodes">Select Nodes</button>
+      <button class="option" id="cancel_select_nodes">Cancel Selection</button>
+      <button class="option" id="remove_node">Remove Nodes</button>
+    </div>
+    <div class="line-1"></div>
+    <div class="button-container-3">
+      <div style="margin-right: 8px">Color</div>
+      <input class="option" style="width: 120px" id="my-pen-color" type="color" />
+      <button class="option" style="width: 70px"id="Change_color">Change</button>
+    </div>
+    <div class="button-container-3">
+      <div style="flex:1;margin-right: 5px">Width</div>
+      <div class="slider1">
+<!--        <span class="slider-label1">1px</span>-->
+        <input id="my-pen-width" class="slider-input1" type="range" value="2" step="1" min="1" max="7" title="Move the slider to change the value"/>
+<!--        <span class="slider-label1">7px</span>-->
+      </div>
+      <button class="option" id="Change_width" style="width: 70px">Change</button>
+    </div>
     <div class="line-1"></div>
     <button class="option" id="export_json">Export to JSON</button>
+
+
   </div>
 
 </div>

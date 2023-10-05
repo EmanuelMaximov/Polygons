@@ -5,6 +5,7 @@ let canvases=[];
 
 let polygons=[];
 let polygons_line_width=[];
+let polygons_tag_text=[];
 let current_polygon_index=-1;
 let coords = [];
 let color_pen='black';
@@ -15,7 +16,8 @@ let added_polygon=false;
 let pointCheck = false;
 let clickCheck = false;
 let pointChange;
-let showCoordsCheck = true;
+let showCoordsCheck = false;
+let showNodesCheck = true;
 //Image Loading Support
 let img = new Image();
 let image_is_inserted=false;
@@ -391,6 +393,12 @@ $(document).ready(function(){
     drawPolygons();
   });
 
+  // Show Nodes check box
+  $("#showNodes").change(function() {
+    showNodesCheck = this.checked;
+    drawPolygons();
+  });
+
   // Clear Polygons only
   $("#clear_pol").click(function() {
     resetAll();
@@ -421,6 +429,7 @@ $(document).ready(function(){
         coords=[];
         polygons.push(coords);
         polygons_line_width.push(edge_width);
+        polygons_tag_text.push("");
         current_polygon_index=polygons.length-1;
       }
     }
@@ -431,7 +440,7 @@ $(document).ready(function(){
     if (!select_nodes  && edit_mode){
       //remove polygon from polygons array
       polygons.splice(current_polygon_index, 1);
-
+      polygons_tag_text.splice(current_polygon_index, 1);
       // after removing move back to the first polygon
       if (polygons.length > 0) {
         current_polygon_index = 0;
@@ -480,6 +489,7 @@ $(document).ready(function(){
     if (coords.length==0) {
       //remove polygon from polygons array
       polygons.splice(current_polygon_index, 1);
+      polygons_tag_text.splice(current_polygon_index, 1);
 
       // after removing move back to the first polygon
       if (polygons.length > 0) {
@@ -587,6 +597,22 @@ $(document).ready(function(){
     alert("Polygons data was exported to JSON file successfully!")
   });
 
+  // // Edit tag name button
+  $("#edit_tag").click(function() {
+    // Prompt the user for text input and store the result in a variable
+    var userInput = prompt("Enter text:");
+
+    // Check if the user entered text
+    if (userInput !== null) {
+      // You can now use the 'userInput' variable to store the entered text
+      // console.log("User input: " + userInput);
+      polygons_tag_text[current_polygon_index] = userInput;
+      drawPolygons();
+    }
+
+  });
+
+
   // ---------------------------------------- Auxiliary functions ----------------------------------------
 
   // reset all flags and Data
@@ -597,13 +623,15 @@ $(document).ready(function(){
     $("#remove_node").css("visibility","hidden");
     polygons=[];
     polygons_line_width=[];
+    polygons_tag_text=[];
     current_polygon_index=-1;
     coords = [];
 
     added_polygon=false;
     pointCheck = false;
     clickCheck = false;
-    showCoordsCheck = true;
+    showCoordsCheck = false;
+    showNodesCheck=true;
 
     zoom_activated = false;
     zoomMouseDown = false;
@@ -633,6 +661,8 @@ $(document).ready(function(){
   function output(d) {
     return canvas_height-d;
   }
+
+
   // draws the dashed bounding rect around the polygon in edit-mode
   function drawBoundingRect() {
     boundingRectangle.top=[0,0];
@@ -727,12 +757,14 @@ $(document).ready(function(){
   // Display a circle for given co-ordinate and display its values
   function displayCoord(a,width) {
     c.save();
-    c.fillStyle = a[2];
-    c.beginPath();
-    c.arc(parseInt(a[0],10),output(parseInt(a[1],10)), (width/2)+3, 0, 2 * Math.PI);
-    c.fill();
-    c.restore();
+    if (showNodesCheck){
+      c.fillStyle = a[2];
+      c.beginPath();
+      c.arc(parseInt(a[0],10),output(parseInt(a[1],10)), (width/2)+3, 0, 2 * Math.PI);
+      c.fill();
+    }
     if (showCoordsCheck) c.fillText("("+a[0]+","+a[1]+")",parseInt(a[0],10)+10,output(parseInt(a[1],10)+10));
+    c.restore();
   }
 
   // Draw a line between co-ordinates
@@ -743,6 +775,69 @@ $(document).ready(function(){
     c.stroke();
   }
 
+  function getTopCoordinate(current_polygon){
+    let top=[0,0];
+    for (let i = 0; i < current_polygon.length; i++) {
+      if (current_polygon[i][1]> top[1]){
+        top=current_polygon[i];
+      }
+    }
+    return top;
+  }
+  function drawTag(topCoord,tag){
+
+    if (tag!=""){
+      c.save();
+      // Set the text size (adjust this as needed)
+      var textSize = 15;
+
+// Set the text properties
+      c.font = textSize + "px Calibri";
+      c.fillStyle = "white";
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+
+      var text = "#"+tag;
+      var text = "#"+tag;
+      var x = topCoord[0];
+      var y = output(topCoord[1])-13;
+
+// Measure the text's width
+      var textWidth = c.measureText(text).width;
+      if (textWidth>0){
+        var padding=4;
+// Calculate the bounding rectangle coordinates and dimensions
+        var rectX = x - textWidth / 2; // X-coordinate of the top-left corner of the rectangle
+        var rectY = y - textSize / 2 - 5; // Y-coordinate of the top-left corner of the rectangle
+        var rectWidth = textWidth; // Width of the rectangle
+        var rectHeight = textSize + padding; // Height of the rectangle (including rounded edges)
+        var cornerRadius = 4.5; // Radius for the upper edges
+
+// Draw the filled bounding rectangle with only the upper edges rounded
+        c.fillStyle = "black"; // Fill color
+        c.strokeStyle = "black"; // Border color
+        c.lineWidth = 2; // Border width
+        c.beginPath();
+        c.moveTo(rectX + cornerRadius, rectY);
+        c.lineTo(rectX + rectWidth - cornerRadius, rectY);
+        c.arcTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + cornerRadius, cornerRadius);
+        c.lineTo(rectX + rectWidth, rectY + rectHeight);
+        c.lineTo(rectX, rectY + rectHeight);
+        c.lineTo(rectX, rectY + cornerRadius);
+        c.arcTo(rectX, rectY, rectX + cornerRadius, rectY, cornerRadius);
+        c.closePath();
+        c.fill();
+        c.stroke();
+
+// Draw the text in front of the bounding rectangle
+        c.fillStyle = "white"; // Text color
+        c.fillText(text, x, y);
+      }
+      c.restore();
+    }
+
+  }
+
   function drawPolygons() {
     c.clearRect(0,0,canvas_width,canvas_height);
     // load the image if inserted
@@ -751,6 +846,8 @@ $(document).ready(function(){
     }
     for (let j = 0; j < polygons.length; j++) {
       c.lineWidth=polygons_line_width[j];
+      //Draws Tag name
+      drawTag(getTopCoordinate(polygons[j]),polygons_tag_text[j]);
       for (let i = 0; i < polygons[j].length; i++) {
         displayCoord(polygons[j][i],polygons_line_width[j]);
         if (i == polygons[j].length-1) {
