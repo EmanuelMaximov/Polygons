@@ -25,7 +25,7 @@
   <!--Tabs-->
   <div class="tabs">
     <div class="tab" id="main-tab" data-tab="0">Open Layer</div>
-    <div class="tab" id="add-tab">+</div>
+    <div class="tab" id="add-tab" >+</div>
   </div>
 
 
@@ -42,7 +42,7 @@
   <!--  Credits-->
   <div class="slider">
       <img style="width: 18px; height: 18px"src="https://cdn-icons-png.flaticon.com/512/117/117453.png" alt="Zoom Icon" />
-      <input id="my-range" style="width: 135px" type="range" value="0" step=".05" min="1" max="2" title="Move the slider to change the value"/>
+      <input id="my-range" style="width: 135px" type="range" value="0" step=".05" min="1" max="4" title="Move the slider to change the value"/>
       <button id="reset_zoom"  style="width: 50px" >Reset</button>
   </div>
 </div>
@@ -60,6 +60,8 @@
         <p>2. Click on "Add Polygon" button</p>
         <p>3. Double-click to create new node</p>
         <p>4. Right-click on the polygon you want to edit</p>
+        <div style="height: 2px;width: 300px;background: black;"></div>
+        <p>Note: Most of the functions work only in edit-mode</p>
       </div>
     </div>
 
@@ -85,7 +87,9 @@
       <button class="option" id="delete_polygon">Delete Polygon</button>
     </div>
     <div class="line-1"></div>
+    <div  style="margin-bottom: 3px;">Show Tags<input id="showTags" type="checkbox" checked></div>
     <div class="button-container">
+
       <button class="option" id="edit_tag">Edit Tag Name</button>
       <button class="option" id="switch-layer">Switch Layer</button>
       <!-- Placeholder for the tab list window -->
@@ -113,7 +117,10 @@
       <button class="option" id="Change_width" style="width: 70px">Change</button>
     </div>
     <div class="line-1"></div>
-    <button class="option" id="export_json">Export to JSON</button>
+    <div class="button-container">
+      <button class="option" id="export_json">Export to JSON</button>
+      <button class="option" id="export_img">Save Image</button>
+    </div>
 
 
   </div>

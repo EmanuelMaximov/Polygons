@@ -1,7 +1,9 @@
 let canvas_width = 800;
 let canvas_height = 475;
 
-let canvases=[];
+const openLayerID=0;
+let layers={};
+let layer_index=0;
 
 let polygons=[];
 let polygons_line_width=[];
@@ -18,6 +20,7 @@ let clickCheck = false;
 let pointChange;
 let showCoordsCheck = false;
 let showNodesCheck = true;
+let showTagsCheck = true;
 //Image Loading Support
 let img = new Image();
 let image_is_inserted=false;
@@ -49,15 +52,17 @@ $(document).ready(function(){
   let c=canvas.getContext('2d');
 
 
-  // Tabs Handling
+  // -----------------------------Tabs Handling-----------------------------
   const tabsContainer = document.querySelector(".tabs");
   const addTabButton = document.getElementById("add-tab");
-  let tabsID=0;
-  setActiveTab(0);
-  // Function to create a new tab
-  function createTab() {
-    tabsID++;
-    const newTabId = tabsID;
+
+  layers[openLayerID] = [polygons,polygons_line_width,polygons_tag_text];
+  setActiveTab(openLayerID);
+  let tabsId=0;
+  // Event listener for adding a new tab
+  addTabButton.addEventListener("click", function() {
+    tabsId++;
+    const newTabId = tabsId;
     const newTab = document.createElement("div");
     newTab.className = "tab";
     newTab.dataset.tab = newTabId;
@@ -65,32 +70,8 @@ $(document).ready(function(){
     newTab.innerHTML += '<span class="close-tab">×</span>';
     tabsContainer.insertBefore(newTab, addTabButton);
     setActiveTab(newTabId);
-  }
-
-  // Function to remove a tab
-  function removeTab(tabId) {
-    const tabToRemove = document.querySelector(`.tab[data-tab="${tabId}"]`);
-    tabsContainer.removeChild(tabToRemove);
-    document.body.removeChild(tabContentToRemove);
-    setActiveTab(tabId-1);
-  }
-
-  // Function to set the active tab
-  function setActiveTab(tabId) {
-    if (tabId===undefined){
-      return;
-    }
-    const tabs = document.querySelectorAll(".tab");
-    tabs.forEach(tab => {
-      tab.classList.remove("active");
-    });
-    tabs[tabId].classList.add("active");
-
-  }
-
-
-  // Event listener for adding a new tab
-  addTabButton.addEventListener("click", createTab);
+    addLayer(newTabId);
+  });
 
   // Event delegation for closing tabs
   tabsContainer.addEventListener("click", function(event) {
@@ -104,8 +85,90 @@ $(document).ready(function(){
     if (event.target.classList.contains("tab")) {
       const tabId = event.target.dataset.tab;
       setActiveTab(tabId);
+      setCurrentLayer(tabId);
     }
   });
+
+
+  // Function to remove a tab
+  function removeTab(tabId) {
+    const tabToRemove = document.querySelector(`.tab[data-tab="${tabId}"]`);
+    tabsContainer.removeChild(tabToRemove);
+    if (!hasActiveTab()){ //if the active tab is removed
+      setActiveTab(findMaxtabID());
+    }
+
+  }
+
+  // Function to set the active tab
+  function setActiveTab(tabId) {
+    if (tabId===undefined){
+      return;
+    }
+    const tabs = document.querySelectorAll(".tab");
+    tabs.forEach(tab => {
+      tab.classList.remove("active");
+    });
+    document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add("active");
+
+  }
+
+  function hasActiveTab() {
+    const tabs = document.querySelectorAll(".tab");
+    for (const tab of tabs) {
+      if (tab.classList.contains('active')) {
+        return true; // Found an active tab
+      }
+    }
+    return false; // No active tab found
+  }
+  function findMaxtabID(){
+    const tabs = document.querySelectorAll(".tab");
+    let max=0;
+    for (const tab of tabs) {
+      const currentTabId = parseInt(tab.dataset.tab);
+      if (currentTabId>max){
+        max=currentTabId;
+      }
+    }
+    return max;
+  }
+
+  function saveLayerState(){
+    layers[layer_index]=[polygons,polygons_line_width,polygons_tag_text];
+  }
+  function updateLayerIndex(tabId){
+    layer_index=tabId;
+  }
+
+  function addLayer(tabId){
+    saveLayerState();
+    updateLayerIndex(tabId);
+    resetAll();
+    saveLayerState();
+    drawPolygons();
+  }
+  function removeLayer(tabId){
+    delete layers.tabId;
+  }
+
+  function setCurrentLayer(tabId){
+    if (tabId!=undefined){
+      saveLayerState();
+      updateLayerIndex(tabId);
+      resetAll();
+      polygons=layers[layer_index][0];
+      polygons_line_width=layers[layer_index][1];
+      polygons_tag_text=layers[layer_index][2];
+      drawPolygons();
+    }
+
+  }
+
+
+
+
+
   // Context menu for renaming a tab name
   let contextMenu = null;
 
@@ -398,6 +461,11 @@ $(document).ready(function(){
     showNodesCheck = this.checked;
     drawPolygons();
   });
+  // Show Nodes check box
+  $("#showTags").change(function() {
+    showTagsCheck = this.checked;
+    drawPolygons();
+  });
 
   // Clear Polygons only
   $("#clear_pol").click(function() {
@@ -614,6 +682,25 @@ $(document).ready(function(){
 
 
   });
+  $("#export_img").click(function() {
+    const dataURL = canvas.toDataURL('image/png');
+
+// Create an image element to display the saved image
+    const savedImage = new Image();
+    savedImage.src = dataURL;
+
+// Append the image element to the document or do whatever you want with it
+    document.body.appendChild(savedImage);
+
+// To save the image to a file, you can use the following code
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'canvas_image.png'; // Set the desired file name
+    link.click();
+
+
+
+  });
 
 
   function getTabName(tabElement) {
@@ -626,81 +713,100 @@ $(document).ready(function(){
   }
   // // Move Polygon to other layer button
   $("#switch-layer").click(function() {
-    // Get the button element
-    var button = document.getElementById('switch-layer');
+    if (edit_mode && coords.length>0){
+      let timer;
+      // Get the button element
+      var button = document.getElementById('switch-layer');
 
-    // Create the tab list window
-    var tabListWindow = document.createElement('div');
-    tabListWindow.id = 'tabListWindow';
+      // Create the tab list window
+      var tabListWindow = document.createElement('div');
+      tabListWindow.id = 'tabListWindow';
 
-    // Get all the tab elements on your page
-    var tabElements = document.querySelectorAll('.tab');
+      // Create a heading or label for the options
+      const heading = document.createElement('h3');
+      heading.textContent = 'Move Polygon to:';
+      tabListWindow.appendChild(heading);
 
-    // Create a list of tab names as options
-    var options = [];
-    tabElements.forEach(function(tabElement) {
-      var tabId = tabElement.getAttribute('data-tab');
-      var tabName = getTabName(tabElement); // Use the getTabName function to remove the close-button
+      // Get all the tab elements on your page
+      var tabElements = document.querySelectorAll('.tab');
 
-      var option = document.createElement('div');
-      option.textContent = tabName;
-      option.classList.add('tabs-menu'); // Add the 'option' class
+      // Create a list of tab names as options
+      var options = [];
+      tabElements.forEach(function(tabElement) {
+        var tabId = tabElement.getAttribute('data-tab');
+        var tabName = getTabName(tabElement); // Use the getTabName function to remove the close-button
 
-      // Add a click event listener to each option
-      option.addEventListener('click', function() {
-        // Save the tab ID when an option is clicked
-        alert('You clicked on tab ID: ' + tabId);
+        var option = document.createElement('div');
+        option.textContent = tabName;
+        option.classList.add('tabs-menu'); // Add the 'option' class
 
-        // Close the tab list window
-        tabListWindow.style.display = 'none';
+        // Add a click event listener to each option
+        option.addEventListener('click', function() {
+          // Save the tab ID when an option is clicked
+          alert('You clicked on tab ID: ' + tabId);
+
+          // Close the tab list window
+          tabListWindow.style.display = 'none';
+        });
+
+        options.push(option);
+
       });
 
-      options.push(option);
+      // Append the options to the tab list window
+      options.forEach(function(option) {
+        tabListWindow.appendChild(option);
+      });
 
-    });
+      // Position the tab list window below the button
+      var buttonRect = button.getBoundingClientRect();
+      tabListWindow.style.top = buttonRect.bottom + 'px';
+      tabListWindow.style.left = buttonRect.left + 'px';
 
-    // Append the options to the tab list window
-    options.forEach(function(option) {
-      tabListWindow.appendChild(option);
-    });
+      // Display the tab list window
+      tabListWindow.style.display = 'block';
 
-    // Position the tab list window below the button
-    var buttonRect = button.getBoundingClientRect();
-    tabListWindow.style.top = buttonRect.bottom + 'px';
-    tabListWindow.style.left = buttonRect.left + 'px';
+      // Add a mouseout event listener to the tab list window
+      tabListWindow.addEventListener('mouseout', function(event) {
+        var relatedTarget = event.relatedTarget;
+        if (!relatedTarget || !tabListWindow.contains(relatedTarget)) {
+          // Mouse is out of the tab list window, so hide it
+          tabListWindow.style.display = 'none';
+        }
+      });
 
-    // Display the tab list window
-    tabListWindow.style.display = 'block';
+      // Add a mouseover event listener to apply the hover effect
+      tabListWindow.addEventListener('mouseover', function(event) {
+        var target = event.target;
+        clearTimeout(timer);
+        if (target.classList.contains('tabs-menu')) {
+          // Apply the hover class when hovering over an option
+          target.classList.add('hovered');
+        }
 
-    // Add a mouseout event listener to the tab list window
-    tabListWindow.addEventListener('mouseout', function(event) {
-      var relatedTarget = event.relatedTarget;
-      if (!relatedTarget || !tabListWindow.contains(relatedTarget)) {
-        // Mouse is out of the tab list window, so hide it
+      });
+
+      // Add a mouseout event listener to remove the hover effect
+      tabListWindow.addEventListener('mouseout', function(event) {
+        var target = event.target;
+        if (target.classList.contains('tabs-menu')) {
+          // Remove the hover class when moving away from an option
+          target.classList.remove('hovered');
+        }
+      });
+
+
+
+      // Mouse is out of the options window, so start a timer to hide it after 1.5 seconds
+      timer = setTimeout(function () {
         tabListWindow.style.display = 'none';
-      }
-    });
+      }, 1500); // 1.5 seconds
 
-    // Add a mouseover event listener to apply the hover effect
-    tabListWindow.addEventListener('mouseover', function(event) {
-      var target = event.target;
-      if (target.classList.contains('tabs-menu')) {
-        // Apply the hover class when hovering over an option
-        target.classList.add('hovered');
-      }
-    });
 
-    // Add a mouseout event listener to remove the hover effect
-    tabListWindow.addEventListener('mouseout', function(event) {
-      var target = event.target;
-      if (target.classList.contains('tabs-menu')) {
-        // Remove the hover class when moving away from an option
-        target.classList.remove('hovered');
-      }
-    });
 
-    // Append the tab list window to the document
-    document.body.appendChild(tabListWindow);
+      // Append the tab list window to the document
+      document.body.appendChild(tabListWindow);
+    }
 
   });
 
@@ -725,6 +831,7 @@ $(document).ready(function(){
     clickCheck = false;
     showCoordsCheck = false;
     showNodesCheck=true;
+    showTagsCheck=true;
 
     zoom_activated = false;
     zoomMouseDown = false;
@@ -879,7 +986,7 @@ $(document).ready(function(){
   }
   function drawTag(topCoord,tag){
 
-    if (tag!=""){
+    if (tag!="" && showTagsCheck){
       c.save();
       // Set the text size (adjust this as needed)
       var textSize = 15;
