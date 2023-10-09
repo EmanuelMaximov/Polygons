@@ -216,6 +216,9 @@ body
 .add-tab{
   background: none;
 }
+
+
+
 /* Style the close button (x) */
 .close-tab {
   position: relative;
@@ -308,6 +311,26 @@ body
 }
 
 /* Style for the tab list window */
+#tabListWindowAndCheckboxes {
+  display: none;
+  position: absolute;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+
+  width: 200px;
+  font-weight: bold;
+  padding: 5px; /* Add padding to style the button's content */
+  margin-right: 5px; /* Add margin between buttons for spacing */
+  margin-top: 3px;
+  background-color: white; /* Button background color */
+  color: black; /* Text color */
+  /*border: none; !* Remove the button border *!*/
+  border-radius: 5px; /* Add rounded corners */
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* Style for the tab list window */
 #tabListWindow {
   display: none;
   position: absolute;
@@ -340,4 +363,37 @@ h3 {
   margin-top: 0px;
   margin-bottom: 9px;
   color: #898989;
+}
+
+
+.hidden {
+  display: none;
+}
+
+/* Style for the close button */
+.close-button {
+  position: absolute;
+  margin-right: 5px;
+  top: 3px;
+  left: 3px;
+  width: 15px; /* Set the width and height to make it circular */
+  height: 15px;
+  background-color: black; /* Background color for the circle */
+  border-radius: 50%; /* Make it circular */
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  color: white; /* Text color */
+  outline: none; /* Remove the default focus outline */
+}
+
+/* Style for the close button on hover */
+.close-button:hover {
+  opacity: 0.8; /* Change the background color on hover if desired */
+  background-color: palevioletred;
+
+
 }
