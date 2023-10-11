@@ -1,23 +1,31 @@
 let canvas_width = 720;
 let canvas_height = 480;
 
+//Layers related vars
 const openLayerID=0;
 let layers={};
 let layer_index=0;
+let TabsID=0;
+// Context menu for renaming a tab name
+let contextMenu = null;
 
+//Polygons related vars
 let polygons=[];
 let polygons_line_width=[];
 let polygons_tag_text=[];
+let polygons_color=[];
 let current_polygon_index=-1;
 let coords = [];
 let color_pen='black';
 let edge_width=2;
 
 //Global Flags
+let display_mode=false;
 let added_polygon=false;
 let pointCheck = false;
 let clickCheck = false;
 let pointChange;
+//Checkboxes flags
 let showCoordsCheck = false;
 let showNodesCheck = true;
 let showTagsCheck = true;
@@ -42,6 +50,9 @@ let boundingRectangle={ top:[0,0],
                         most_left: [canvas_width,0]};
 
 
+
+
+
 $(document).ready(function(){
 
   //Get Canvas instance
@@ -52,18 +63,24 @@ $(document).ready(function(){
   let c=canvas.getContext('2d');
 
 
-  // -----------------------------Tabs Handling-----------------------------
+
+
+
+  // // ---------------------------------------- Tabs Handling ----------------------------------------
   const tabsContainer = document.querySelector(".tabs");
   const addTabButton = document.getElementById("add-tab");
 
-  layers[openLayerID] = [polygons,polygons_line_width,polygons_tag_text];
+  //Set The Open Layer as default
+  layers[openLayerID] = [polygons,polygons_line_width,polygons_tag_text,polygons_color];
   setActiveTab(openLayerID);
-  let tabsId=0;
+
+
   // Event listener for adding a new tab
   addTabButton.addEventListener("click", function() {
-    tabsId++;
-    const newTabId = tabsId;
+    TabsID++;
+    const newTabId = TabsID;
     const newTab = document.createElement("div");
+    //Setting new tab's data
     newTab.className = "tab";
     newTab.dataset.tab = newTabId;
     newTab.textContent = `Layer ${newTabId}`;
@@ -73,14 +90,16 @@ $(document).ready(function(){
     addLayer(newTabId);
   });
 
-  // Event delegation for closing tabs
+  // Event listener for closing tabs
   tabsContainer.addEventListener("click", function(event) {
     if (event.target.classList.contains("close-tab")) {
       const tabId = event.target.parentElement.dataset.tab;
       removeTab(parseInt(tabId));
     }
   });
-  // Event delegation for setting an active tab when clicked
+
+
+  // Event listener for setting an active tab when clicked
   tabsContainer.addEventListener("click", function(event) {
     if (event.target.classList.contains("tab")) {
       const tabId = event.target.dataset.tab;
@@ -88,19 +107,75 @@ $(document).ready(function(){
       setCurrentLayer(tabId);
     }
   });
+  // Event listener for tab right-click for renaming
+  tabsContainer.addEventListener("contextmenu", function(event) {
+    event.preventDefault();
+    const tab = event.target.closest(".tab");
+    if (tab) {
+      showContextMenu(event, tab);
+    }
+  });
 
+  //Functions for supporting and tracking the layers/tabs state
+  function saveLayerState(){
+    layers[layer_index]=[polygons,polygons_line_width,polygons_tag_text,polygons_color];
+  }
+  function updateLayerIndex(tabId){
+    layer_index=tabId;
+  }
+  function addLayer(tabId){
+    saveLayerState();
+    updateLayerIndex(tabId);
+    resetAll();
+    saveLayerState();
+    drawPolygons();
+  }
+  function removeLayer(tabId){
+    delete layers[tabId];
+
+    // if removed layer is the active tab
+    if (!hasActiveTab()){
+      let newTabId=findMaxtabID();
+      updateLayerIndex(newTabId);
+      resetAll();
+      polygons=layers[layer_index][0];
+      polygons_line_width=layers[layer_index][1];
+      polygons_tag_text=layers[layer_index][2];
+      polygons_color=layers[layer_index][3];
+      drawPolygons();
+      setActiveTab(newTabId);
+    }
+
+
+  }
+  function setCurrentLayer(tabId){
+    if (tabId!==undefined){
+      saveLayerState();
+      updateLayerIndex(tabId);
+      resetAll();
+      polygons=layers[layer_index][0];
+      polygons_line_width=layers[layer_index][1];
+      polygons_tag_text=layers[layer_index][2];
+      polygons_color=layers[layer_index][3];
+      //if the layer contains polygons enable adding nodes when editing
+      if (polygons.length>0){
+        added_polygon=true;
+      }
+      drawPolygons();
+    }
+
+  }
 
   // Function to remove a tab
   function removeTab(tabId) {
     const tabToRemove = document.querySelector(`.tab[data-tab="${tabId}"]`);
     tabsContainer.removeChild(tabToRemove);
     removeLayer(tabId);
-
-
   }
 
   // Function to set the active tab
   function setActiveTab(tabId) {
+    //if "add-tab" button was clicked
     if (tabId===undefined){
       return;
     }
@@ -109,9 +184,9 @@ $(document).ready(function(){
       tab.classList.remove("active");
     });
     document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add("active");
-
   }
 
+  //Function for checking if there is an active tab
   function hasActiveTab() {
     const tabs = document.querySelectorAll(".tab");
     for (const tab of tabs) {
@@ -121,6 +196,7 @@ $(document).ready(function(){
     }
     return false; // No active tab found
   }
+  //Function for finding the tab with the max ID value for setting new active tab
   function findMaxtabID(){
     const tabs = document.querySelectorAll(".tab");
     let max=0;
@@ -132,63 +208,7 @@ $(document).ready(function(){
     }
     return max;
   }
-
-  function saveLayerState(){
-    layers[layer_index]=[polygons,polygons_line_width,polygons_tag_text];
-  }
-  function updateLayerIndex(tabId){
-    layer_index=tabId;
-  }
-
-  function addLayer(tabId){
-    saveLayerState();
-    updateLayerIndex(tabId);
-    resetAll();
-    saveLayerState();
-    drawPolygons();
-  }
-  function removeLayer(tabId){
-    delete layers.tabId;
-
-    // if removed layer is the active tab
-    if (!hasActiveTab()){
-      let newTabId=findMaxtabID();
-      updateLayerIndex(newTabId);
-      resetAll();
-      polygons=layers[layer_index][0];
-      polygons_line_width=layers[layer_index][1];
-      polygons_tag_text=layers[layer_index][2];
-      drawPolygons();
-      setActiveTab(newTabId);
-    }
-
-
-  }
-
-  function setCurrentLayer(tabId){
-    if (tabId!=undefined){
-      saveLayerState();
-      updateLayerIndex(tabId);
-      resetAll();
-      polygons=layers[layer_index][0];
-      polygons_line_width=layers[layer_index][1];
-      polygons_tag_text=layers[layer_index][2];
-      //if the layer contains polygons enable adding nodes when editing
-      if (polygons.length>0){
-        added_polygon=true;
-      }
-      drawPolygons();
-    }
-
-  }
-
-
-
-
-
-  // Context menu for renaming a tab name
-  let contextMenu = null;
-
+  //Functions for supporting "rename tab" option
   function showContextMenu(event, tab) {
     // Check if there's an existing context menu, and if so, hide it
     hideContextMenu();
@@ -211,12 +231,11 @@ $(document).ready(function(){
       }
       hideContextMenu();
     });
-
+    //if clicked somewhere after the displaying of the menu
     document.addEventListener("click", function() {
       hideContextMenu();
     });
   }
-
 
   function hideContextMenu() {
     if (contextMenu) {
@@ -227,7 +246,6 @@ $(document).ready(function(){
 
   // Function to rename a tab
   function renameTab(tab) {
-    const tabId = tab.dataset.tab;
     const newTabName = prompt("Enter a new tab name:", tab.textContent.trim().slice(0, -1));
     if (newTabName !== null) {
       tab.textContent = newTabName;
@@ -236,37 +254,6 @@ $(document).ready(function(){
     }
   }
 
-  tabsContainer.addEventListener("contextmenu", function(event) {
-    event.preventDefault();
-    const tab = event.target.closest(".tab");
-    if (tab) {
-      showContextMenu(event, tab);
-    }
-  });
-
-  // Get references to the info button and the info popup
-  var infoButton = document.querySelector(".info-button");
-  var infoPopup = document.getElementById("info-popup");
-
-// Add event listeners for mouseover and mouseout
-  infoButton.addEventListener("mouseover", showInfoPopup);
-  infoButton.addEventListener("mouseout", hideInfoPopup);
-
-  function showInfoPopup(event) {
-    // Set the position of the popup
-    infoPopup.style.left = 20 + "px";
-    infoPopup.style.top = 20 + "px";
-    // Show the popup
-    infoPopup.classList.add("active");
-  }
-  function hideInfoPopup() {
-    // Hide the popup
-    infoPopup.classList.remove("active");
-  }
-
-
-
-
   // ---------------------------------------- Events Listeners ----------------------------------------
 
   //Double-Click event for adding nodes to the polygon
@@ -274,7 +261,7 @@ $(document).ready(function(){
     const x=e.offsetX;
     const y=output(e.offsetY);
     if (edit_mode && !pointCheck && added_polygon){
-      coords.push([x,y,color_pen]);
+      coords.push([x,y]);
       polygons[current_polygon_index]=coords;
       drawPolygons();
     }
@@ -366,7 +353,7 @@ $(document).ready(function(){
            clicked_nodes.splice(ind,1);
          }
 
-         if (clicked_nodes.length==0){
+         if (clicked_nodes.length===0){
            select_nodes=false;
            $("#remove_node").css("visibility","hidden");
          }
@@ -387,7 +374,7 @@ $(document).ready(function(){
     const y = output(e.offsetY);
     let index=checkOnEdge([x,y]);
 
-    if (index!=-1){// When right-clicked on polygon
+    if (index!==-1){// When right-clicked on polygon
       edit_mode=true;
       document.getElementById("v_mode").style.display = "none";
       document.getElementById("e_mode").style.display = "block";
@@ -428,7 +415,7 @@ $(document).ready(function(){
     }
   });
 
-  $("#graph").mouseup(function(e) {
+  $("#graph").mouseup(function() {
     drag_polygon=false;
     zoomMouseDown = false;
     if (clickCheck) {
@@ -449,6 +436,21 @@ $(document).ready(function(){
 
 
   // ---------------------------------------- Buttons ----------------------------------------
+
+  //info button/icon
+  let infoButton = document.querySelector(".info-button");
+  let infoPopup = document.getElementById("info-popup");
+  infoButton.addEventListener("mouseover", function() {
+    // Set the position of the popup
+    infoPopup.style.left = 20 + "px";
+    infoPopup.style.top = 20 + "px";
+    // Show the popup
+    infoPopup.classList.add("active");
+  });
+  infoButton.addEventListener("mouseout", function() {
+    // Hide the popup
+    infoPopup.classList.remove("active");
+  });
 
   // Load Image file button
   $("#inputFile").on("change", function(e) {
@@ -478,7 +480,7 @@ $(document).ready(function(){
     showNodesCheck = this.checked;
     drawPolygons();
   });
-  // Show Nodes check box
+  // Show Tags check box
   $("#showTags").change(function() {
     showTagsCheck = this.checked;
     drawPolygons();
@@ -510,11 +512,12 @@ $(document).ready(function(){
       document.getElementById("v_mode").style.display = "none";
       document.getElementById("e_mode").style.display = "block";
       //push previous co-ordinates only if it's not empty or if it's the first polygon
-      if (coords.length!=0 || polygons.length==0){
+      if (coords.length!==0 || polygons.length===0){
         coords=[];
         polygons.push(coords);
         polygons_line_width.push(edge_width);
         polygons_tag_text.push("");
+        polygons_color.push(color_pen);
         current_polygon_index=polygons.length-1;
       }
     }
@@ -526,6 +529,8 @@ $(document).ready(function(){
       //remove polygon from polygons array
       polygons.splice(current_polygon_index, 1);
       polygons_tag_text.splice(current_polygon_index, 1);
+      polygons_line_width.splice(current_polygon_index, 1);
+      polygons_color.splice(current_polygon_index, 1);
       // after removing move back to the first polygon
       if (polygons.length > 0) {
         current_polygon_index = 0;
@@ -551,7 +556,7 @@ $(document).ready(function(){
   });
 
   // Cancel Nodes selection button
-  $("#cancel_select_nodes").on('click', function(e){
+  $("#cancel_select_nodes").on('click', function(){
     if (edit_mode && select_nodes){
       $("#remove_node").css("visibility","hidden");
       select_nodes=false;
@@ -561,7 +566,7 @@ $(document).ready(function(){
   });
 
   // removes all selected nodes
-  $("#remove_node").on('click', function(e){
+  $("#remove_node").on('click', function(){
     let new_coords=[];
     // make new array with the not selected nodes to keep
     for (let i=0; i<coords.length;i++){
@@ -579,6 +584,8 @@ $(document).ready(function(){
       //remove polygon from polygons array
       polygons.splice(current_polygon_index, 1);
       polygons_tag_text.splice(current_polygon_index, 1);
+      polygons_line_width.splice(current_polygon_index, 1);
+      polygons_color.splice(current_polygon_index, 1);
 
       // after removing move back to the first polygon
       if (polygons.length > 0) {
@@ -610,12 +617,7 @@ $(document).ready(function(){
   //Change color button - changes the color of selected polygon
   $("#Change_color").on("click", function() {
     if (edit_mode && !select_nodes) {
-      let new_color=color_pen;
-      // updates third item in every co-ordinate
-      for (let i = 0; i < coords.length; i++) {
-        coords[i][2]=new_color;
-      }
-      polygons[current_polygon_index]=coords;
+      polygons_color[current_polygon_index] = color_pen;
       drawPolygons();
     }
 
@@ -669,10 +671,11 @@ $(document).ready(function(){
   $("#export_json").click(function() {
     let polygons_data=[];
     for (let i=0;i<polygons.length;i++){
-      let coords_data={Tag:"",Width: 0,Coordinates: []};
+      let coords_data={Tag:"",Width: 0,Color: "",Coordinates: []};
       coords_data.Width=parseInt(polygons_line_width[i],10);
       coords_data.Coordinates=polygons[i];
       coords_data.Tag=polygons_tag_text[i];
+      coords_data.Color=polygons_color[i];
       polygons_data.push(coords_data);
     }
     const originalData = JSON.parse(JSON.stringify(polygons_data));
@@ -687,7 +690,7 @@ $(document).ready(function(){
     alert("Polygons data from current layer \nwas exported to JSON file successfully!")
   });
 
-  // // Edit tag name button
+  //Edit tag name button
   $("#edit_tag").click(function() {
     if (edit_mode){
       // Prompt the user for text input and store the result in a variable
@@ -695,53 +698,16 @@ $(document).ready(function(){
 
       // Check if the user entered text
       if (userInput !== null) {
-        // You can now use the 'userInput' variable to store the entered text
-        // console.log("User input: " + userInput);
         polygons_tag_text[current_polygon_index] = userInput;
         drawPolygons();
       }
     }
-
-
   });
 
-
-
-  function getTabName(tabElement) {
-    const tabText = tabElement.textContent.trim();
-    if (tabText==="Open Layer"){
-      return tabText;
-    }
-    return tabText.substring(0, tabText.length - 1); // Remove the last character (the close-button)
-
-  }
-
-  function movePolygon(tabId){
-    //save the specific polygon data
-    const polygon_data=polygons[current_polygon_index];
-    const polygon_data_line_width=polygons_line_width[current_polygon_index];
-    const polygon_data_tag=polygons_tag_text[current_polygon_index];
-    //remove polygon from current layer
-    deletePolygon();
-    //add the polygon data to the new layer
-    updateLayerIndex(tabId);
-    layers[layer_index][0].push(polygon_data);
-    layers[layer_index][1].push(polygon_data_line_width);
-    layers[layer_index][2].push(polygon_data_tag);
-    //show the new layer and set it to active tab
-    resetAll();
-    polygons=layers[layer_index][0];
-    polygons_line_width=layers[layer_index][1];
-    polygons_tag_text=layers[layer_index][2];
-    drawPolygons();
-    setActiveTab(tabId);
-
-
-  }
   // Move Polygon to other layer button
   $("#switch-layer").click(function() {
-
     if (edit_mode && coords.length>0){
+      //Timer for hiding the menu after a while
       let timer;
       // Get the button element
       var button = document.getElementById('switch-layer');
@@ -764,7 +730,7 @@ $(document).ready(function(){
         var tabId = tabElement.getAttribute('data-tab');
         const isActiveTab = tabElement.classList.contains("active");
 
-        //Don't include the current tab in the options window
+        //Ensures the active/current tab is not displayed as option
         if (!isActiveTab){
           var tabName = getTabName(tabElement); // Use the getTabName function to remove the close-button
 
@@ -774,15 +740,11 @@ $(document).ready(function(){
 
           // Add a click event listener to each option
           option.addEventListener('click', function() {
-            // Save the tab ID when an option is clicked
-            // alert('You clicked on tab ID: ' + tabId);
-
             movePolygon(tabId);
-
             // Close the tab list window
             tabListWindow.style.display = 'none';
+            document.body.removeChild(tabListWindow);
           });
-
           options.push(option);
         }
 
@@ -808,6 +770,7 @@ $(document).ready(function(){
         if (!relatedTarget || !tabListWindow.contains(relatedTarget)) {
           // Mouse is out of the tab list window, so hide it
           tabListWindow.style.display = 'none';
+          document.body.removeChild(tabListWindow);
         }
       });
 
@@ -831,14 +794,11 @@ $(document).ready(function(){
         }
       });
 
-
-
-      // Mouse is out of the options window, so start a timer to hide it after 1.5 seconds
+      // Mouse is out of the options window, so start a timer to hide it after 1.9 seconds
       timer = setTimeout(function () {
         tabListWindow.style.display = 'none';
-      }, 1900); // 1.9 seconds
-
-
+        document.body.removeChild(tabListWindow);
+      }, 1900);
 
       // Append the tab list window to the document
       document.body.appendChild(tabListWindow);
@@ -846,50 +806,179 @@ $(document).ready(function(){
 
   });
 
+  // Dispplay layers button
+  $("#display-layers").click(function() {
+    if (!display_mode){
+      display_mode=true;
+      //Hide the regular tabs and show the special "Display mode" tab
+      hideTabs();
+      // Get the button element
+      var button = document.getElementById('display-layers');
 
+      // Create the tab list window
+      var tabListWindowAndCheckboxes = document.createElement('div');
+      tabListWindowAndCheckboxes.id = 'tabListWindowAndCheckboxes';
 
-  // Define a function to check if two arrays are equal
-  function arraysAreEqual(array1, array2) {
-    if (array1.length !== array2.length) {
-      return false;
-    }
-    for (var i = 0; i < array1.length; i++) {
-      if (array1[i] !== array2[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
+      // Create a heading or label for the options
+      const heading = document.createElement('h3');
+      heading.textContent = 'Select Layers to display:';
+      tabListWindowAndCheckboxes.appendChild(heading);
 
-  function updateMergedPolygons(key,isChecked){
-    if (layers.hasOwnProperty(key)) {
-      const value = layers[key];
-      if (isChecked){
-        for (let j = 0; j < value[0].length; j++) {
-          polygons.push(value[0][j]);
-          polygons_line_width.push(value[1][j]);
-          polygons_tag_text.push(value[2][j]);
+      // Get all the tab elements on your page
+      var tabElements = document.querySelectorAll('.tab');
+
+      // 1 Create a list of tab names as options
+      var options = [];
+      tabElements.forEach(function(tabElement) {
+        var tabId = tabElement.getAttribute('data-tab');
+        var tabName = getTabName(tabElement); // Use the getTabName function to remove the close-button
+
+        // Check if tabName is not empty
+        if (tabName.trim() !== '' && tabId!=-1) {
+          var option = document.createElement('div');
+
+          // 1.1 Create a checkbox for each layer (tab)
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.dataset.tabId = tabId; // Unique ID for each checkbox
+          checkbox.style.float = 'left'; // Align checkbox to the left
+          checkbox.checked = false;
+          // Add an event listener to the checkbox
+          checkbox.addEventListener('change', function(event) {
+            const checkboxID = event.target.dataset.tabId;
+            const isChecked = event.target.checked;
+            // Perform actions based on whether the checkbox is checked or unchecked
+            if (isChecked) {
+              updateMergedPolygons(checkboxID,true);
+            } else {
+              updateMergedPolygons(checkboxID,false);
+            }
+          });
+
+          option.appendChild(checkbox);
+
+          // 1.2 Create a label for the checkbox
+          var label = document.createElement('label');
+          label.textContent = tabName;
+          label.style.display="flex";
+          option.appendChild(label);
+          option.classList.add('tabs-menu'); // Add the 'option' class
+          options.push(option);
         }
+      });
 
-      }
-      else {
+      // Append the options to the tab list window
+      options.forEach(function(option) {
+        tabListWindowAndCheckboxes.appendChild(option);
+      });
 
-        // Find the index of the item to be removed
-        var indexOfItemToRemove = polygons.findIndex(function(item) {
-          return arraysAreEqual(item, value[0][0]);
+      // 2 Create a container for "Clear All" and "Select All" buttons
+      var buttonContainer = document.createElement('div');
+      buttonContainer.classList.add('button-container-5');
+      // 2.1 Create a "Select All" button
+      var selectAllButton = document.createElement('button');
+      selectAllButton.textContent = 'Select All';
+      selectAllButton.style.marginTop='10px';
+      selectAllButton.style.marginRight='5px';
+      selectAllButton.addEventListener('click', function() {
+        // Iterate through checkboxes and check them
+        options.forEach(function(option) {
+          var checkbox = option.querySelector('input[type="checkbox"]');
+          checkbox.checked = true;
+          //Remove polygons if was already selected manually
+          updateMergedPolygons(checkbox.dataset.tabId,false);
+          updateMergedPolygons(checkbox.dataset.tabId,true);
         });
-        const sizeOfArr=value[0].length;
-        // Check if the item was found and its index
-        if (indexOfItemToRemove !== -1) {
-          // Remove the item at the found index using splice
-          polygons.splice(indexOfItemToRemove, sizeOfArr);
-          polygons_line_width.splice(indexOfItemToRemove, sizeOfArr);
-          polygons_tag_text.splice(indexOfItemToRemove, sizeOfArr);
-        }
-      }
+
+
+      });
+      buttonContainer.appendChild(selectAllButton);
+
+      // 2.2 Create a "Clear All" button
+      var clearAllButton = document.createElement('button');
+      clearAllButton.textContent = 'Clear All';
+      clearAllButton.addEventListener('click', function() {
+        // Iterate through checkboxes and uncheck them
+        options.forEach(function(option) {
+          var checkbox = option.querySelector('input[type="checkbox"]');
+          checkbox.checked = false;
+          updateMergedPolygons(checkbox.dataset.tabId,false);
+        });
+      });
+      buttonContainer.appendChild(clearAllButton);
+
+
+      // Append the button container to the tab list window
+      tabListWindowAndCheckboxes.appendChild(buttonContainer);
+
+      // Position the tab list window below the button
+      var buttonRect = button.getBoundingClientRect();
+      tabListWindowAndCheckboxes.style.top = buttonRect.bottom + 'px';
+      tabListWindowAndCheckboxes.style.left = buttonRect.left + 'px';
+
+      // Display the tab list window
+      tabListWindowAndCheckboxes.style.display = 'block';
+
+
+      // / Create a close button
+      const closeButton = document.createElement('button');
+      closeButton.textContent = 'x';
+      closeButton.classList.add('close-button'); // You can style this button with CSS
+
+      // Add an event listener to the close button to hide the window
+      closeButton.addEventListener('click', function() {
+        tabListWindowAndCheckboxes.style.display = 'none';
+        document.body.removeChild(tabListWindowAndCheckboxes);
+        showTabs();
+        display_mode=false;
+      });
+
+      // Append the close button to the tab list window
+      tabListWindowAndCheckboxes.appendChild(closeButton);
+      // Append the tab list window to the document
+      document.body.appendChild(tabListWindowAndCheckboxes);
     }
-    drawPolygons();
+  });
+
+  // ---------------------------------------- Auxiliary functions ----------------------------------------
+
+  //1. Supporting the "switch layer" button
+  //1.1 return tabs name without the x (close button) char
+  function getTabName(tabElement) {
+    const tabText = tabElement.textContent.trim();
+    if (tabText==="Open Layer"){
+      return tabText;
+    }
+    return tabText.substring(0, tabText.length - 1); // Remove the last character (the close-button)
+
   }
+  //1.2 moves polygons data to the selected layer
+  function movePolygon(tabId){
+    //save the specific polygon data
+    const polygon_data=polygons[current_polygon_index];
+    const polygon_data_line_width=polygons_line_width[current_polygon_index];
+    const polygon_data_tag=polygons_tag_text[current_polygon_index];
+    const polygon_data_color=polygons_color[current_polygon_index];
+    //remove polygon from current layer
+    deletePolygon();
+    //add the polygon data to the new layer
+    updateLayerIndex(tabId);
+    layers[layer_index][0].push(polygon_data);
+    layers[layer_index][1].push(polygon_data_line_width);
+    layers[layer_index][2].push(polygon_data_tag);
+    layers[layer_index][3].push(polygon_data_color);
+    //show the new layer and set it to active tab
+    resetAll();
+    polygons=layers[layer_index][0];
+    polygons_line_width=layers[layer_index][1];
+    polygons_tag_text=layers[layer_index][2];
+    polygons_color=layers[layer_index][3];
+    drawPolygons();
+    setActiveTab(tabId);
+  }
+
+  //2 supporting the "Display Layers" button
+  //2.1 Hide the regular tabs and show the special "Display mode" tab
   function hideTabs(){
     resetAll();
     drawPolygons();
@@ -906,13 +995,13 @@ $(document).ready(function(){
     //Add special tab
     const newTab = document.createElement("div");
     newTab.className = "tab";
-    newTab.dataset.tab = -1;
+    newTab.dataset.tab = -1;//special tab ID
     newTab.textContent = `Display Mode`;
     newTab.style.backgroundColor='#DE3163';
     newTab.style.color='white';
     tabsContainer.insertBefore(newTab, addTabButton);
   }
-
+  //2.1 Show the regular tabs and hide the special "Display mode" tab
   function showTabs(){
     document.getElementById("v_mode").style.display = "block";
     var button = document.getElementById('display-layers');
@@ -920,174 +1009,64 @@ $(document).ready(function(){
     button.style.backgroundColor='white';
     button.style.color='black';
     // To show tabs and reapply styles
-    removeTab(-1);
+    removeTab(-1); //special tab ID
     const tabs = document.querySelectorAll(".tab");
     tabs.forEach(tab => {
       tab.style.display = "block";
     });
-
     resetAll();
     polygons=layers[layer_index][0];
     polygons_line_width=layers[layer_index][1];
     polygons_tag_text=layers[layer_index][2];
+    polygons_color=layers[layer_index][3];
     if (polygons.length>0){
       added_polygon=true;
     }
     drawPolygons();
   }
+  //2.3 Updates the Polygons var to include all the polygons from selected layers
+  function updateMergedPolygons(key,isChecked){
+    if (layers.hasOwnProperty(key)) {
+      const value = layers[key];
+      //In the case the layers were selected
+      if (isChecked){
+        for (let j = 0; j < value[0].length; j++) {
+          polygons.push(value[0][j]);
+          polygons_line_width.push(value[1][j]);
+          polygons_tag_text.push(value[2][j]);
+          polygons_color.push(value[3][j]);
+        }
+      } else {//In the case the layers were unselected
 
-
-
-  // Dispplay layers button
-  $("#display-layers").click(function() {
-    hideTabs();
-    // Get the button element
-    var button = document.getElementById('display-layers');
-
-    // Create the tab list window
-    var tabListWindowAndCheckboxes = document.createElement('div');
-    tabListWindowAndCheckboxes.id = 'tabListWindowAndCheckboxes';
-
-    // Create a heading or label for the options
-    const heading = document.createElement('h3');
-    heading.textContent = 'Select Layers to display:';
-    tabListWindowAndCheckboxes.appendChild(heading);
-
-    // Get all the tab elements on your page
-    var tabElements = document.querySelectorAll('.tab');
-
-    // Create a list of tab names as options
-    var options = [];
-    tabElements.forEach(function(tabElement) {
-      var tabId = tabElement.getAttribute('data-tab');
-
-      var tabName = getTabName(tabElement); // Use the getTabName function to remove the close-button
-
-      // Check if tabName is not empty
-      if (tabName.trim() !== '' && tabId!=-1) {
-        var option = document.createElement('div');
-
-        // Create a checkbox for each layer (tab)
-        var checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.dataset.tabId = tabId; // Unique ID for each checkbox
-        checkbox.style.float = 'left'; // Align checkbox to the left
-        // Add an event listener to the checkbox
-        checkbox.addEventListener('change', function(event) {
-          const checkboxID = event.target.dataset.tabId;
-          const isChecked = event.target.checked;
-
-          // Perform actions based on whether the checkbox is checked or unchecked
-          if (isChecked) {
-            updateMergedPolygons(checkboxID,true);
-          } else {
-            updateMergedPolygons(checkboxID,false);
-          }
+        // Find the index of the item to be removed
+        var indexOfItemToRemove = polygons.findIndex(function(item) {
+          return arraysAreEqual(item, value[0][0]);
         });
-
-
-
-        option.appendChild(checkbox);
-
-        // Create a label for the checkbox
-        var label = document.createElement('label');
-        label.textContent = tabName;
-        // label.setAttribute('for', 'checkbox-' + tabId); // Associate label with checkbox
-        option.appendChild(label);
-
-        option.classList.add('tabs-menu'); // Add the 'option' class
-        options.push(option);
+        const sizeOfArr=value[0].length;
+        // Check if the item was found and its index
+        if (indexOfItemToRemove !== -1) {
+          // Remove the item at the found index using splice
+          polygons.splice(indexOfItemToRemove, sizeOfArr);
+          polygons_line_width.splice(indexOfItemToRemove, sizeOfArr);
+          polygons_tag_text.splice(indexOfItemToRemove, sizeOfArr);
+          polygons_color.splice(indexOfItemToRemove, sizeOfArr);
+        }
       }
-
-
-
-    });
-
-    // Append the options to the tab list window
-    options.forEach(function(option) {
-      tabListWindowAndCheckboxes.appendChild(option);
-    });
-
-    // **Create a container for "Clear All" and "Select All" buttons
-    var buttonContainer = document.createElement('div');
-    buttonContainer.classList.add('button-container-5');
-    // *Create a "Select All" button
-    var selectAllButton = document.createElement('button');
-    selectAllButton.textContent = 'Select All';
-    selectAllButton.style.marginTop='10px';
-    selectAllButton.style.marginRight='5px';
-    selectAllButton.addEventListener('click', function() {
-      // Iterate through checkboxes and check them
-      options.forEach(function(option) {
-        var checkbox = option.querySelector('input[type="checkbox"]');
-
-        updateMergedPolygons(checkbox.dataset.tabId,false);
-        updateMergedPolygons(checkbox.dataset.tabId,true);
-        checkbox.checked = true;
-      });
-
-
-    });
-    buttonContainer.appendChild(selectAllButton);
-
-    // Create a "Clear All" button
-    var clearAllButton = document.createElement('button');
-    clearAllButton.textContent = 'Clear All';
-    clearAllButton.addEventListener('click', function() {
-      // Iterate through checkboxes and uncheck them
-      options.forEach(function(option) {
-        var checkbox = option.querySelector('input[type="checkbox"]');
-
-        updateMergedPolygons(checkbox.dataset.tabId,false);
-        checkbox.checked = false;
-      });
-
-
-
-    });
-    buttonContainer.appendChild(clearAllButton);
-
-
-    // Append the button container to the tab list window
-    tabListWindowAndCheckboxes.appendChild(buttonContainer);
-
-    // Position the tab list window below the button
-    var buttonRect = button.getBoundingClientRect();
-    tabListWindowAndCheckboxes.style.top = buttonRect.bottom + 'px';
-    tabListWindowAndCheckboxes.style.left = buttonRect.left + 'px';
-
-    // Display the tab list window
-    tabListWindowAndCheckboxes.style.display = 'block';
-
-
-    // / Create a close button
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'x';
-    closeButton.classList.add('close-button'); // You can style this button with CSS
-
-    // Add an event listener to the close button to hide the window
-    closeButton.addEventListener('click', function() {
-      tabListWindowAndCheckboxes.style.display = 'none';
-      showTabs();
-
-    });
-
-// Append the close button to the tab list window
-    tabListWindowAndCheckboxes.appendChild(closeButton);
-    // Append the tab list window to the document
-    document.body.appendChild(tabListWindowAndCheckboxes);
-
-
-  });
-
-
-
-
-
-
-
-
-  // ---------------------------------------- Auxiliary functions ----------------------------------------
+    }
+    drawPolygons();
+  }
+  //2.4 Function to check if two arrays are equal
+  function arraysAreEqual(array1, array2) {
+    if (array1.length !== array2.length) {
+      return false;
+    }
+    for (let i = 0; i < array1.length; i++) {
+      if (array1[i] !== array2[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   // reset all flags and Data
   function resetAll(){
@@ -1098,9 +1077,10 @@ $(document).ready(function(){
     polygons=[];
     polygons_line_width=[];
     polygons_tag_text=[];
+    polygons_color=[];
     current_polygon_index=-1;
     coords = [];
-
+    color_pen="black";
     added_polygon=false;
     pointCheck = false;
     clickCheck = false;
@@ -1141,7 +1121,6 @@ $(document).ready(function(){
     return canvas_height-d;
   }
 
-
   // draws the dashed bounding rect around the polygon in edit-mode
   function drawBoundingRect() {
     boundingRectangle.top=[0,0];
@@ -1174,7 +1153,7 @@ $(document).ready(function(){
 
   // Check if cursor in Bounding Rect area
   function checkInBoundingRect(x,y) {
-    if (coords.length!=0 && y>=boundingRectangle.bottom[1] && y<=boundingRectangle.top[1] &&
+    if (coords.length!==0 && y>=boundingRectangle.bottom[1] && y<=boundingRectangle.top[1] &&
       x>=boundingRectangle.most_left[0] && x<=boundingRectangle.most_right[0]){
       return true
     }
@@ -1234,10 +1213,10 @@ $(document).ready(function(){
   }
 
   // Display a circle for given co-ordinate and display its values
-  function displayCoord(a,width) {
+  function displayCoord(a,width,color) {
     c.save();
     if (showNodesCheck){
-      c.fillStyle = a[2];
+      c.fillStyle = color;
       c.beginPath();
       c.arc(parseInt(a[0],10),output(parseInt(a[1],10)), (width/2)+3, 0, 2 * Math.PI);
       c.fill();
@@ -1254,6 +1233,7 @@ $(document).ready(function(){
     c.stroke();
   }
 
+  //Gets the highest coordinate value of the selected polygon
   function getTopCoordinate(current_polygon){
     let top=[0,0];
     for (let i = 0; i < current_polygon.length; i++) {
@@ -1263,12 +1243,13 @@ $(document).ready(function(){
     }
     return top;
   }
-  function drawTag(topCoord,tag){
 
-    if (tag!="" && showTagsCheck){
+  //Draws the tag above the polygon
+  function drawTag(topCoord,tag){
+    if (tag!=="" && showTagsCheck){
       c.save();
-      // Set the text size (adjust this as needed)
-      var textSize = 15;
+      // Set the text size
+      let textSize = 15;
 
       // Set the text properties
       c.font = textSize + "px Calibri";
@@ -1276,16 +1257,12 @@ $(document).ready(function(){
       c.textAlign = "center";
       c.textBaseline = "middle";
 
-      var text = "#"+tag;
-      var text = "#"+tag;
-
-      var x = topCoord[0];
-      var y = output(topCoord[1])-13;
-
-
+      let text = "#"+tag;
+      let x = topCoord[0];
+      let y = output(topCoord[1])-13;
 
       // Measure the text's width
-      var textWidth = c.measureText(text).width;
+      let textWidth = c.measureText(text).width;
       let padding=4;
       // Ensure no leaking of the tag out of the canvas
       if (x-textWidth/2<0){
@@ -1322,7 +1299,7 @@ $(document).ready(function(){
         c.fill();
         c.stroke();
 
-// Draw the text in front of the bounding rectangle
+        // Draw the text in front of the bounding rectangle
         c.fillStyle = "white"; // Text color
         c.fillText(text, x, y);
       }
@@ -1338,16 +1315,15 @@ $(document).ready(function(){
       load_image();
     }
     for (let j = 0; j < polygons.length; j++) {
-      c.lineWidth=polygons_line_width[j];
+      c.lineWidth=polygons_line_width[j]; //set line width
+      c.strokeStyle=polygons_color[j];    //set polygon's color
       //Draws Tag name
       drawTag(getTopCoordinate(polygons[j]),polygons_tag_text[j]);
       for (let i = 0; i < polygons[j].length; i++) {
-        displayCoord(polygons[j][i],polygons_line_width[j]);
-        if (i == polygons[j].length-1) {
-          c.strokeStyle=polygons[j][i][2];
+        displayCoord(polygons[j][i],polygons_line_width[j],polygons_color[j]);
+        if (i === (polygons[j].length-1)) {
           drawLine(polygons[j][i],polygons[j][0]);
         } else {
-          c.strokeStyle=polygons[j][i+1][2];
           drawLine(polygons[j][i],polygons[j][i+1]);
         }
       }

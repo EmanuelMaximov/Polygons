@@ -72,27 +72,46 @@
 
 
     <span >Load Image</span>
-    <input class="option" type="file" id="inputFile">
-    <div class="line-1"></div>
-    <div  style="margin-bottom: 3px;">Show co-ordinates<input id="showCoords" type="checkbox"></div>
-    <div  style="margin-bottom: 3px;">Show Nodes<input id="showNodes" type="checkbox" checked></div>
+    <input class="option" type="file" id="inputFile" style="margin-bottom: 3px">
     <div class="button-container">
       <button class="option" id="clear_pol">Clear Polygons</button>
       <button class="option" id="clear_screen">Clear Screen</button>
     </div>
     <div class="line-1"></div>
+    <div class="container-labels">
+      <div  class="showLabel">Show co-ordinates<div class="onoffslider">
+        <input type="checkbox" name="onoffslider" class="onoffslider-checkbox" id="showCoords" hidden="">
+        <label class="onoffslider-label" for="showCoords"></label>
+      </div></div>
+      <div  class="showLabel">Show Nodes<div class="onoffslider">
+        <input type="checkbox" checked name="onoffslider" class="onoffslider-checkbox" id="showNodes" hidden="">
+        <label class="onoffslider-label" for="showNodes"></label>
+      </div></div>
+      <div class="showLabel">Show Tags<div class="onoffslider">
+        <input type="checkbox" checked name="onoffslider" class="onoffslider-checkbox" id="showTags" hidden="">
+        <label class="onoffslider-label" for="showTags"></label>
+      </div></div>
+    </div>
+    <button class="option" id="display-layers">Layers Panel</button>
+    <div class="line-1"></div>
+
+
+
+
+
+
 
     <div class="button-container">
       <button class="option" id="add_polygon">Add Polygon</button>
       <button class="option" id="delete_polygon">Delete Polygon</button>
     </div>
     <div class="line-1"></div>
-    <div  style="margin-bottom: 3px;">Show Tags<input id="showTags" type="checkbox" checked></div>
+
     <div class="button-container">
 
       <button class="option" id="edit_tag">Edit Tag Name</button>
       <button class="option" id="switch-layer">Switch Layer</button>
-      <button class="option" id="display-layers">Layers Panel</button>
+
       <!-- Placeholder for the tab list window -->
       <div id="tabListWindow"></div>
       <div id="tabListWindowAndCheckboxes"></div>
