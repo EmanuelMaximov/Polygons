@@ -1,5 +1,5 @@
-let canvas_width = 720;
-let canvas_height = 480;
+let canvas_width = 840;
+let canvas_height = 560;
 
 //Layers related vars
 const openLayerID=0;

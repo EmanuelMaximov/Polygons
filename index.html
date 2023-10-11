@@ -10,143 +10,109 @@
 </head>
 
 <body>
-
-
-
-<!--Instructions-->
 <div class="canvas-container">
+  <!--  modes icons-->
   <div class="mode">
-    <img id="v_mode" style="width: 100px; height: 70px"src="https://endlessicons.com/wp-content/uploads/2012/11/view-icon-614x460.png" alt="View mode" />
-    <img id="e_mode" style="width: 35px; height: 35px"src="https://www.freeiconspng.com/thumbs/edit-icon-png/edit-new-icon-22.png" alt="Edit mode" />
-
+    <img id="v_mode" style="width: 100px; height: 70px" src="https://endlessicons.com/wp-content/uploads/2012/11/view-icon-614x460.png" alt="View mode" />
+    <img id="e_mode" style="width: 35px; height: 35px" src="https://www.freeiconspng.com/thumbs/edit-icon-png/edit-new-icon-22.png" alt="Edit mode" />
   </div>
-  <div class="sep"></div>
-
   <!--Tabs-->
   <div class="tabs">
     <div class="tab" id="main-tab" data-tab="0">Open Layer</div>
     <div class="tab" id="add-tab" style="color: white; background-color: mediumseagreen;" >+</div>
   </div>
-
-
-
-  <div class="sep"></div>
   <!--Canvas-->
   <canvas id="graph" style="text-rendering: optimizeLegibility;">Your browser does not support the HTML5 canvas tag.</canvas>
   <div class="sep"></div>
 
-<!--  Credits-->
-
-    <span style="font-size: 40px;font-family:georgia;color: black">Manuscript</span>
-    <span style="color: black">by Emanuel Maximov</span>
   <!--  Credits-->
+  <div class="credits">
+    <span style="font-size: 40px; font-family: Georgia">Manuscript</span>
+    <span style="margin-top: -5px">by Emanuel Maximov</span>
+  </div>
+  <!--  zoom slider-->
   <div class="slider">
-      <img style="width: 18px; height: 18px"src="https://cdn-icons-png.flaticon.com/512/117/117453.png" alt="Zoom Icon" />
+      <img style="width: 18px; height: 18px" src="https://cdn-icons-png.flaticon.com/512/117/117453.png" alt="Zoom Icon" />
       <input id="my-range" style="width: 135px" type="range" value="0" step=".05" min="1" max="4" title="Move the slider to change the value"/>
       <button id="reset_zoom"  style="width: 50px" >Reset</button>
   </div>
 </div>
 
 
-<div id="box">
-  <div class="group">
-
-
-    <div class="info-button">i</div>
-    <!-- Hidden popup div -->
-    <div id="info-popup" class="popup">
-      <div class="popup-content">
-        <p>1. Load an image</p>
-        <p>2. Click on "Add Polygon" button</p>
-        <p>3. Double-click to create new node</p>
-        <p>4. Right-click on the polygon you want to edit</p>
-        <div style="height: 2px;width: 300px;background: black;"></div>
-        <p>Note: Most of the functions work only in edit-mode</p>
-      </div>
+<div class="group">
+  <!--  Information Icon-->
+  <div class="info-button">i</div>
+  <div id="info-popup" class="popup">
+    <div class="popup-content">
+      <p>1. Load an image</p>
+      <p>2. Click on "Add Polygon" button</p>
+      <p>3. Double-click to create new node</p>
+      <p>4. Right-click on the polygon you want to edit</p>
+      <div style="height: 2px;width: 300px;background: black;"></div>
+      <p>Note: Most of the functions work only in edit-mode</p>
     </div>
-
-
-    <span style="font-size: 35px;font-family:georgia;font-weight: normal;">Options</span>
-    <br>
-
-
-
-    <span >Load Image</span>
-    <input class="option" type="file" id="inputFile" style="margin-bottom: 3px">
-    <div class="button-container">
-      <button class="option" id="clear_pol">Clear Polygons</button>
-      <button class="option" id="clear_screen">Clear Screen</button>
-    </div>
-    <div class="line-1"></div>
-    <div class="container-labels">
-      <div  class="showLabel">Show co-ordinates<div class="onoffslider">
-        <input type="checkbox" name="onoffslider" class="onoffslider-checkbox" id="showCoords" hidden="">
-        <label class="onoffslider-label" for="showCoords"></label>
-      </div></div>
-      <div  class="showLabel">Show Nodes<div class="onoffslider">
-        <input type="checkbox" checked name="onoffslider" class="onoffslider-checkbox" id="showNodes" hidden="">
-        <label class="onoffslider-label" for="showNodes"></label>
-      </div></div>
-      <div class="showLabel">Show Tags<div class="onoffslider">
-        <input type="checkbox" checked name="onoffslider" class="onoffslider-checkbox" id="showTags" hidden="">
-        <label class="onoffslider-label" for="showTags"></label>
-      </div></div>
-    </div>
-    <button class="option" id="display-layers">Layers Panel</button>
-    <div class="line-1"></div>
-
-
-
-
-
-
-
-    <div class="button-container">
-      <button class="option" id="add_polygon">Add Polygon</button>
-      <button class="option" id="delete_polygon">Delete Polygon</button>
-    </div>
-    <div class="line-1"></div>
-
-    <div class="button-container">
-
-      <button class="option" id="edit_tag">Edit Tag Name</button>
-      <button class="option" id="switch-layer">Switch Layer</button>
-
-      <!-- Placeholder for the tab list window -->
-      <div id="tabListWindow"></div>
-      <div id="tabListWindowAndCheckboxes"></div>
-    </div>
-    <div class="line-1"></div>
-    <div class="button-container-2">
-      <button class="option" id="select_nodes">Select Nodes</button>
-      <button class="option" id="cancel_select_nodes">Cancel Selection</button>
-      <button class="option" id="remove_node">Remove Nodes</button>
-    </div>
-    <div class="line-1"></div>
-    <div class="button-container-3">
-      <div style="margin-right: 8px">Color</div>
-      <input class="option" style="width: 120px" id="my-pen-color" type="color" />
-      <button class="option" style="width: 70px"id="Change_color">Change</button>
-    </div>
-    <div class="button-container-3">
-      <div style="flex:1;margin-right: 5px">Width</div>
-      <div class="slider1">
-<!--        <span class="slider-label1">1px</span>-->
-        <input id="my-pen-width" class="slider-input1" type="range" value="2" step="1" min="1" max="7" title="Move the slider to change the value"/>
-<!--        <span class="slider-label1">7px</span>-->
-      </div>
-      <button class="option" id="Change_width" style="width: 70px">Change</button>
-    </div>
-    <div class="line-1"></div>
-    <button class="option" id="export_json">Export Layer to JSON</button>
-
-
-
-
-
   </div>
-
+  <span style="font-size: 35px;font-family:georgia;font-weight: normal;">Options</span>
+  <br>
+  <span >Load Image</span>
+  <input class="option" type="file" id="inputFile" style="margin-bottom: 5px;width:225px">
+  <div class="button-container">
+    <button class="option" id="clear_pol">Clear Polygons</button>
+    <button class="option" id="clear_screen">Clear Screen</button>
+  </div>
+  <div class="line-separator"></div>
+  <!--Checkboxes  -->
+  <div class="container-labels">
+    <div  class="showLabel">Show co-ordinates<div class="onoffslider">
+      <input type="checkbox" name="onoffslider" class="onoffslider-checkbox" id="showCoords" hidden="">
+      <label class="onoffslider-label" for="showCoords"></label>
+    </div></div>
+    <div  class="showLabel">Show Nodes<div class="onoffslider">
+      <input type="checkbox" checked name="onoffslider" class="onoffslider-checkbox" id="showNodes" hidden="">
+      <label class="onoffslider-label" for="showNodes"></label>
+    </div></div>
+    <div class="showLabel">Show Tags<div class="onoffslider">
+      <input type="checkbox" checked name="onoffslider" class="onoffslider-checkbox" id="showTags" hidden="">
+      <label class="onoffslider-label" for="showTags"></label>
+    </div></div>
+  </div>
+  <button class="option" id="display-layers">Layers Panel</button>
+  <div class="line-separator"></div>
+  <div class="button-container">
+    <button class="option" id="add_polygon">Add Polygon</button>
+    <button class="option" id="delete_polygon">Delete Polygon</button>
+  </div>
+  <div class="line-separator"></div>
+  <div class="button-container">
+    <button class="option" id="edit_tag">Edit Tag Name</button>
+    <button class="option" id="switch-layer">Switch Layer</button>
+    <!-- Placeholder for the tab list window -->
+    <div id="tabListWindow"></div>
+    <div id="tabListWindowAndCheckboxes"></div>
+  </div>
+  <div class="line-separator"></div>
+  <div class="button-container">
+    <button class="option" id="select_nodes">Select Nodes</button>
+    <button class="option" id="cancel_select_nodes">Cancel Selection</button>
+    <button class="option" id="remove_node" >Remove Nodes</button>
+  </div>
+  <div class="line-separator"></div>
+  <div class="button-container-3">
+    <div style="margin-right: 8px">Color</div>
+    <input class="option" style="width: 120px" id="my-pen-color" type="color"/>
+    <button class="option" style="width: 70px" id="Change_color">Change</button>
+  </div>
+  <div class="button-container-3">
+    <div style="flex:1;margin-right: 5px">Width</div>
+    <div class="slider1">
+      <input id="my-pen-width" class="slider-input1" type="range" value="2" step="1" min="1" max="7" title="Move the slider to change the value"/>
+    </div>
+    <button class="option" id="Change_width" style="width: 70px">Change</button>
+  </div>
+  <div class="line-separator"></div>
+  <button class="option" id="export_json">Export Layer to JSON</button>
 </div>
+
 </body>
 </html>
 

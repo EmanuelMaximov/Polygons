@@ -23,89 +23,14 @@ body
   text-align: center;
 }
 
+.hidden {
+  display: none;
+}
 
+/*---------------------------Canvas---------------------------*/
 #graph {
   border: 3px solid white;
 }
-
-
-
-
-
-
-
-#remove_node{
-  visibility: hidden;
-}
-
-#warning
-{
-  font-style: italic;
-}
-
-.group
-{
-  display: flex;
-  flex-direction: column;
-  border: 3px solid black;
-  border-radius: 5px;
-  align-items: center;
-  justify-content: center;
-  padding: 3px;
-  background-color: rgba(255, 255, 255, 0.4);
-  /*: 0.7;*/
-  font-weight: bold;
-  position: relative;
-}
-
-.option
-{
-  width: 220px;
-  font-weight: bold;
-  /*width: 100px; !* Set the width for each button *!*/
-  padding: 5px; /* Add padding to style the button's content */
-  margin-right: 5px; /* Add margin between buttons for spacing */
-  margin-top: 3px;
-  background-color: white; /* Button background color */
-  color: black; /* Text color */
-  /*border: none; !* Remove the button border *!*/
-  border-radius: 5px; /* Add rounded corners */
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-}
-/* Hover style */
-.option:hover {
-  background-color: black; /* Change the background color to black on hover */
-  color: white; /* Change the text color to white on hover */
-  border-color: black; /* Change the border color to black on hover */
-}
-/* Style for the container div */
-.button-container {
-  display: flex; /* Use flexbox to arrange buttons side by side */
-  width: 235px;
-
-}
-
-/* Style for the container div */
-.button-container-2 {
-  display: flex; /* Use flexbox to arrange buttons side by side */
-  width: 120px;
-  margin-right: 100px;
-}
-
-
-
-/* Style for the container div */
-.button-container-3 {
-  display: flex;
-  align-items: center; /* Center items vertically within the row */
-  margin-bottom: 3px;
-}
-
-#box
-{
-  padding: 3px;
-}
-
 
 .canvas-container {
   display: flex;
@@ -114,7 +39,20 @@ body
   position: relative;
 }
 
+.credits {
+  position: absolute;
+  color: black;
+  bottom: 10px; /* Adjust the bottom position as needed */
+  left: 6px; /* Adjust the right position as needed */
+  align-items: center;
+  z-index: 1; /* Ensure the element is above the canvas */
+  border-radius: 5px;
+  padding: 0px;
+  display:flex;
+  flex-direction: column;
+}
 
+/*edit & view mode icons*/
 #e_mode{
   display: none;
   position: absolute;
@@ -139,7 +77,7 @@ body
 /*zoom slider*/
 .slider {
   position: absolute;
-  bottom: 55px; /* Adjust the bottom position as needed */
+  bottom: 10px; /* Adjust the bottom position as needed */
   right: 6px; /* Adjust the right position as needed */
   align-items: center;
   z-index: 1; /* Ensure the element is above the canvas */
@@ -148,39 +86,11 @@ body
   padding: 4px;
   display:flex;
 }
-
-
 .sep {
   clear: both;
 }
 
-/*edge width slider*/
-.slider1 {
-  display:flex;
-  flex-direction:row;
-  align-items:center;
-}
-
-.slider-input1 {
-  /*flex:1;*/
-  width: 120px;
-}
-
-.slider-label1 {
-  width: 30px;
-  font-weight: normal;
-}
-
-
-.line-1 {
-  height: 2px;
-  width: 230px;
-  background: black;
-  margin: 5px;
-}
-
-
-/*Tabs:*/
+/*---------------------------Tabs---------------------------*/
 .tabs {
   display: flex;
   border-bottom: 1px solid #e0e0e0;
@@ -191,7 +101,7 @@ body
 
 .tab {
   position: relative;
-  padding: 5px 20px;
+  padding: 5px 15px;
   border: 1px solid #ccc;
   border-bottom: none;
   border-top-left-radius: 4px;
@@ -215,11 +125,6 @@ body
   background-color: #FFF5EE;
   opacity: 0.8; /* Reduce opacity on hover */
 }
-
-.add-tab{
-  background: none;
-}
-
 
 
 /* Style the close button (x) */
@@ -273,6 +178,78 @@ body
 }
 
 
+/*---------------------------Options Menu---------------------------*/
+.line-separator {
+  height: 2px;
+  width: 250px;
+  background: black;
+  margin: 10px;
+}
+
+.group
+{
+  display: flex;
+  flex-direction: column;
+  border: 3px solid black;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  background-color: rgba(255, 255, 255, 0.4);
+  /*: 0.7;*/
+  font-weight: bold;
+  position: relative;
+}
+
+.option
+{
+  font-weight: bold;
+  width: 240px; /* Set the width for each button */
+  padding: 6px; /* Add padding to style the button's content */
+  margin-right: 5px; /* Add margin between buttons for spacing */
+  /*margin-top: 3px;*/
+  background-color: white; /* Button background color */
+  color: black; /* Text color */
+  /*border: none; !* Remove the button border *!*/
+  border-radius: 5px; /* Add rounded corners */
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+/* Hover style */
+.option:hover {
+  background-color: black; /* Change the background color to black on hover */
+  color: white; /* Change the text color to white on hover */
+  border-color: black; /* Change the border color to black on hover */
+}
+
+
+/*---------------------------General: Buttons---------------------------*/
+/* Style for the container div */
+.button-container {
+  display: flex; /* Use flexbox to arrange buttons side by side */
+  width: 240px;
+
+}
+/* Style for the container div */
+.button-container-3 {
+  display: flex;
+  align-items: center; /* Center items vertically within the row */
+  margin-bottom: 3px;
+}
+/*Edge width slider*/
+.slider1 {
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+}
+
+.slider-input1 {
+  width: 120px;
+}
+
+/*Remove nodes button*/
+#remove_node{
+  visibility: hidden;
+}
 
 /* Styles for the info button */
 .info-button {
@@ -303,59 +280,38 @@ body
   pointer-events: none; /* Allow clicks to pass through */
 }
 
-/* Styles for the popup content */
 .popup-content {
   padding: 10px;
 }
 
-/* Styles for showing the popup */
 .popup.active {
   display: block;
 }
 
-/* Style for the tab list window */
+/* ---------------------------Switch Layer & Layers Panel buttons (Menus with layers list)--------------------------- */
+#tabListWindowAndCheckboxes,#tabListWindow {
+  display: none;
+  position: absolute;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  font-weight: bold;
+  padding: 5px; /* Add padding to style the button's content */
+  margin-right: 5px; /* Add margin between buttons for spacing */
+  margin-top: 3px;
+  background-color: white; /* Button background color */
+  color: black; /* Text color */
+  border-radius: 5px; /* Add rounded corners */
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
 #tabListWindowAndCheckboxes {
-  display: none;
-  position: absolute;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  overflow-y: auto;
-
-  width: 210px;
-  font-weight: bold;
-  padding: 5px; /* Add padding to style the button's content */
-  margin-right: 5px; /* Add margin between buttons for spacing */
-  margin-top: 3px;
-  background-color: white; /* Button background color */
-  color: black; /* Text color */
-  /*border: none; !* Remove the button border *!*/
-  border-radius: 5px; /* Add rounded corners */
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  width: 230px;
 }
-
-/* Style for the tab list window */
 #tabListWindow {
-  display: none;
-  position: absolute;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  max-height: 150px; /* Adjust the maximum height as needed */
-  overflow-y: auto;
-
   width: 150px;
-  font-weight: bold;
-  /*width: 100px; !* Set the width for each button *!*/
-  padding: 5px; /* Add padding to style the button's content */
-  margin-right: 5px; /* Add margin between buttons for spacing */
-  margin-top: 3px;
-  background-color: white; /* Button background color */
-  color: black; /* Text color */
-  /*border: none; !* Remove the button border *!*/
-  border-radius: 5px; /* Add rounded corners */
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
-/* Style for the hovered row */
+/* Style for the hovered row for Switch Layer button */
 .hovered {
   background-color: lightskyblue; /* Adjust the color as desired */
   cursor: pointer;
@@ -369,11 +325,7 @@ h3 {
 }
 
 
-.hidden {
-  display: none;
-}
-
-/* Style for the close button */
+/*  close button for Display Panel button */
 .close-button {
   position: absolute;
   /*margin-right: 5px;*/
@@ -392,14 +344,14 @@ h3 {
   color: white; /* Text color */
   outline: none; /* Remove the default focus outline */
 }
-
-/* Style for the close button on hover */
 .close-button:hover {
   opacity: 0.8; /* Change the background color on hover if desired */
   background-color: palevioletred;
 
 
 }
+
+/*---------------------------Checkboxes: Show Coords/Tags/Nodes (Iphone slider effect)---------------------------*/
 .container-labels {
   display: flex;
   flex-direction: column;
