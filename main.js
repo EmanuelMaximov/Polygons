@@ -1,5 +1,5 @@
 const canvas_width = 970;
-const canvas_height = 1255.7;
+const canvas_height = 1256;
 
 //Layers related vars
 const openLayerID=0;
@@ -147,20 +147,22 @@ $(document).ready(function(){
 
   }
   function setCurrentLayer(tabId){
-    if (tabId!==undefined){
-      saveLayerState();
-      updateLayerIndex(tabId);
-      resetAll();
-      polygons=layers[layer_index][0];
-      polygons_line_width=layers[layer_index][1];
-      polygons_tag_text=layers[layer_index][2];
-      polygons_color=layers[layer_index][3];
-      //if the layer contains polygons enable adding nodes when editing
-      if (polygons.length>0){
-        added_polygon=true;
-      }
-      drawPolygons();
+    if (tabId===undefined){
+      return;
     }
+    saveLayerState();
+    updateLayerIndex(tabId);
+    resetAll();
+    polygons=layers[layer_index][0];
+    polygons_line_width=layers[layer_index][1];
+    polygons_tag_text=layers[layer_index][2];
+    polygons_color=layers[layer_index][3];
+    //if the layer contains polygons enable adding nodes when editing
+    if (polygons.length>0){
+      added_polygon=true;
+    }
+    drawPolygons();
+
 
   }
 
@@ -521,15 +523,12 @@ $(document).ready(function(){
       edit_mode=true;
       document.getElementById("v_mode").style.display = "none";
       document.getElementById("e_mode").style.display = "block";
-      //push previous co-ordinates only if it's not empty or if it's the first polygon
-      if (coords.length!==0 || polygons.length===0){
-        coords=[];
-        polygons.push(coords);
-        polygons_line_width.push(edge_width);
-        polygons_tag_text.push("");
-        polygons_color.push(color_pen);
-        current_polygon_index=polygons.length-1;
-      }
+      coords=[];
+      polygons.push(coords);
+      polygons_line_width.push(edge_width);
+      polygons_tag_text.push("");
+      polygons_color.push(color_pen);
+      current_polygon_index=polygons.length-1;
     }
   });
 
