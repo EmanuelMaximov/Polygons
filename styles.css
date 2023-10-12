@@ -11,7 +11,11 @@ html, body
   padding: 0px;
   background-image: url(https://wallpaperaccess.com/full/5668740.jpg);
   background-size: cover;
+  background-attachment: fixed;
+
 }
+
+
 
 body
 {
@@ -27,16 +31,20 @@ body
   display: none;
 }
 
+/*.Overall-container {*/
+/*  display: flex;*/
+/*  position: relative;*/
+/*}*/
+
 /*---------------------------Canvas---------------------------*/
 #graph {
   border: 3px solid white;
 }
 
 .canvas-container {
-  display: flex;
-  flex-direction: row;
-  display:block;
   position: relative;
+  max-height: 100vh;
+  margin-top:8px;
 }
 
 .credits {
@@ -77,14 +85,39 @@ body
 /*zoom slider*/
 .slider {
   position: absolute;
-  bottom: 10px; /* Adjust the bottom position as needed */
-  right: 6px; /* Adjust the right position as needed */
+  top: 50px; /* Adjust the top position as needed */
+  left: 15px; /* Adjust the right position as needed */
   align-items: center;
   z-index: 1; /* Ensure the element is above the canvas */
-  background-color: rgba(255, 255, 255, 0.7); /* Background color with opacity */
-  border-radius: 5px;
-  padding: 4px;
+  background-color: rgba(200, 200, 200, 0.4); /* Background color with opacity */
+  border-radius: 10px;
+  padding: 12px;
   display:flex;
+  transition: width 0.5s ease;
+}
+
+#reset_zoom{
+  font-weight: bold;
+  padding: 5px;
+  align-content: center;
+  background-color: white; /* Button background color */
+  color: black; /* Text color */
+  border-radius: 5px; /* Add rounded corners */
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+#reset_zoom:hover{
+  background-color: black; /* Change the background color to black on hover */
+  color: white; /* Change the text color to white on hover */
+  border-color: black; /* Change the border color to black on hover */
+}
+
+.zoom-controls {
+  display: none;
+}
+
+.zoom-icon {
+  cursor: pointer;
 }
 .sep {
   clear: both;
@@ -101,7 +134,7 @@ body
 
 .tab {
   position: relative;
-  padding: 5px 15px;
+  padding: 8px 20px;
   border: 1px solid #ccc;
   border-bottom: none;
   border-top-left-radius: 4px;
@@ -183,11 +216,14 @@ body
   height: 2px;
   width: 250px;
   background: black;
-  margin: 10px;
+  margin: 7px;
 }
 
 .group
 {
+  position: relative;
+  flex-shrink: 0;
+  top: 0;
   display: flex;
   flex-direction: column;
   border: 3px solid black;
@@ -196,13 +232,13 @@ body
   justify-content: center;
   padding: 3px;
   background-color: rgba(255, 255, 255, 0.4);
-  /*: 0.7;*/
   font-weight: bold;
-  position: relative;
+
 }
 
 .option
 {
+
   font-weight: bold;
   width: 240px; /* Set the width for each button */
   padding: 6px; /* Add padding to style the button's content */
@@ -272,7 +308,7 @@ body
 .popup {
   display: none;
   background-color: #fff;
-  width: 320px; /* Adjust the width as needed */
+  width: 250px; /* Adjust the width as needed */
   text-align: left;
   position: absolute;
   z-index: 2; /* Ensure the popup is above other content */

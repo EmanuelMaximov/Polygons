@@ -1,5 +1,5 @@
-let canvas_width = 840;
-let canvas_height = 560;
+const canvas_width = 970;
+const canvas_height = 1255.7;
 
 //Layers related vars
 const openLayerID=0;
@@ -64,9 +64,7 @@ $(document).ready(function(){
 
 
 
-
-
-  // // ---------------------------------------- Tabs Handling ----------------------------------------
+  // ---------------------------------------- Tabs Handling ----------------------------------------
   const tabsContainer = document.querySelector(".tabs");
   const addTabButton = document.getElementById("add-tab");
 
@@ -255,6 +253,18 @@ $(document).ready(function(){
   }
 
   // ---------------------------------------- Events Listeners ----------------------------------------
+  //Scroll event for the options menu to adjust position
+  window.addEventListener("scroll", function() {
+    const container = document.querySelector(".Overall-container");
+    const menu = document.querySelector(".group");
+    const containerRect = container.getBoundingClientRect();
+
+    if (containerRect.top < 0) {
+      menu.style.top = Math.abs(containerRect.top) + "px";
+    } else {
+      menu.style.top = "0";
+    }
+  });
 
   //Double-Click event for adding nodes to the polygon
   $("#graph").dblclick(function(e) {
@@ -659,6 +669,20 @@ $(document).ready(function(){
     }
   });
 
+  //Zoom icon sliding effect
+  const zoomContainer = document.querySelector(".slider");
+  const zoomControls = document.querySelector(".zoom-controls");
+
+  zoomContainer.addEventListener("mouseenter", function () {
+    zoomContainer.style.width = "210px"; /* Adjust the expanded width as needed */
+    zoomContainer.style.height = "18px"; /* Adjust the expanded width as needed */
+    zoomControls.style.display = "flex";
+  });
+
+  zoomContainer.addEventListener("mouseleave", function () {
+    zoomContainer.style.width = "18px"; /* Set it back to the original width */
+    zoomControls.style.display = "none";
+  });
   // Zoom reset button
   $("#reset_zoom").click(function() {
     document.getElementById('my-range').value = 0;
@@ -756,10 +780,19 @@ $(document).ready(function(){
         tabListWindow.appendChild(option);
       });
 
-      // Position the tab list window below the button
-      var buttonRect = button.getBoundingClientRect();
-      tabListWindow.style.top = buttonRect.bottom + 'px';
-      tabListWindow.style.left = buttonRect.left + 'px';
+      function positionPopup() {
+        // Position the tab list window below the button
+        var buttonRect = button.getBoundingClientRect();
+        const scrollY = window.scrollY;
+        tabListWindow.style.top = buttonRect.bottom+scrollY + 'px';
+        tabListWindow.style.left = buttonRect.left + 'px';
+      }
+      // Position the pop-up initially
+      positionPopup();
+
+      // Add a scroll event listener to adjust the pop-up position dynamically
+      window.addEventListener("scroll", positionPopup);
+
 
       // Display the tab list window
       tabListWindow.style.display = 'block';
@@ -799,6 +832,7 @@ $(document).ready(function(){
         tabListWindow.style.display = 'none';
         document.body.removeChild(tabListWindow);
       }, 1900);
+
 
       // Append the tab list window to the document
       document.body.appendChild(tabListWindow);
@@ -911,10 +945,20 @@ $(document).ready(function(){
       // Append the button container to the tab list window
       tabListWindowAndCheckboxes.appendChild(buttonContainer);
 
-      // Position the tab list window below the button
-      var buttonRect = button.getBoundingClientRect();
-      tabListWindowAndCheckboxes.style.top = buttonRect.bottom + 'px';
-      tabListWindowAndCheckboxes.style.left = buttonRect.left + 'px';
+
+      function positionDisplayPopup() {
+        // Position the tab list window below the button
+        var buttonRect = button.getBoundingClientRect();
+        const scrollY = window.scrollY;
+        tabListWindowAndCheckboxes.style.top = buttonRect.bottom+scrollY + 'px';
+        tabListWindowAndCheckboxes.style.left = buttonRect.left + 'px';
+      }
+      // Position the pop-up initially
+      positionDisplayPopup();
+
+      // Add a scroll event listener to adjust the pop-up position dynamically
+      window.addEventListener("scroll", positionDisplayPopup);
+
 
       // Display the tab list window
       tabListWindowAndCheckboxes.style.display = 'block';

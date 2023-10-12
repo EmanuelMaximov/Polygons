@@ -10,6 +10,7 @@
 </head>
 
 <body>
+<div class="Overall-container">
 <div class="canvas-container">
   <!--  modes icons-->
   <div class="mode">
@@ -26,16 +27,18 @@
   <div class="sep"></div>
 
   <!--  Credits-->
-  <div class="credits">
-    <span style="font-size: 40px; font-family: Georgia">Manuscript</span>
-    <span style="margin-top: -5px">by Emanuel Maximov</span>
+<!--  <div class="credits">-->
+<!--    <span style="font-size: 40px; font-family: Georgia">Manuscript</span>-->
+<!--    <span style="margin-top: -5px">by Emanuel Maximov</span>-->
   </div>
   <!--  zoom slider-->
   <div class="slider">
-      <img style="width: 18px; height: 18px" src="https://cdn-icons-png.flaticon.com/512/117/117453.png" alt="Zoom Icon" />
+      <img class="zoom-icon" style="width: 18px; height: 18px" src="https://cdn-icons-png.flaticon.com/512/117/117453.png" alt="Zoom Icon" />
+    <div class="zoom-controls">
       <input id="my-range" style="width: 135px" type="range" value="0" step=".05" min="1" max="4" title="Move the slider to change the value"/>
       <button id="reset_zoom"  style="width: 50px" >Reset</button>
-  </div>
+    </div>
+    </div>
 </div>
 
 
@@ -48,7 +51,6 @@
       <p>2. Click on "Add Polygon" button</p>
       <p>3. Double-click to create new node</p>
       <p>4. Right-click on the polygon you want to edit</p>
-      <div style="height: 2px;width: 300px;background: black;"></div>
       <p>Note: Most of the functions work only in edit-mode</p>
     </div>
   </div>
@@ -84,8 +86,8 @@
   </div>
   <div class="line-separator"></div>
   <div class="button-container">
-    <button class="option" id="edit_tag">Edit Tag Name</button>
     <button class="option" id="switch-layer">Switch Layer</button>
+    <button class="option" id="edit_tag">Edit Tag Name</button>
     <!-- Placeholder for the tab list window -->
     <div id="tabListWindow"></div>
     <div id="tabListWindowAndCheckboxes"></div>
@@ -111,6 +113,7 @@
   </div>
   <div class="line-separator"></div>
   <button class="option" id="export_json">Export Layer to JSON</button>
+</div>
 </div>
 
 </body>
