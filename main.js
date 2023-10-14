@@ -8,6 +8,8 @@ let layer_index=0;
 let TabsID=0;
 // Context menu for renaming a tab name
 let contextMenu = null;
+let Tags_List=["Title","Main text","Graphics", "Line","Marginal Notes","Paper's Editors"];
+
 
 //Polygons related vars
 let polygons=[];
@@ -21,6 +23,7 @@ let edge_width=2;
 
 //Global Flags
 let display_mode=false;
+let tags_edit_mode=false;
 let added_polygon=false;
 let pointCheck = false;
 let clickCheck = false;
@@ -72,7 +75,6 @@ $(document).ready(function(){
   layers[openLayerID] = [polygons,polygons_line_width,polygons_tag_text,polygons_color];
   setActiveTab(openLayerID);
 
-
   // Event listener for adding a new tab
   addTabButton.addEventListener("click", function() {
     TabsID++;
@@ -86,6 +88,8 @@ $(document).ready(function(){
     tabsContainer.insertBefore(newTab, addTabButton);
     setActiveTab(newTabId);
     addLayer(newTabId);
+    totalTabsWidthAdjust();
+
   });
 
   // Event listener for closing tabs
@@ -93,6 +97,7 @@ $(document).ready(function(){
     if (event.target.classList.contains("close-tab")) {
       const tabId = event.target.parentElement.dataset.tab;
       removeTab(parseInt(tabId));
+      totalTabsWidthAdjust();
     }
   });
 
@@ -715,15 +720,112 @@ $(document).ready(function(){
 
   //Edit tag name button
   $("#edit_tag").click(function() {
+    // if (edit_mode){
+    //   // Prompt the user for text input and store the result in a variable
+    //   var userInput = prompt("Enter text:");
+    //
+    //   // Check if the user entered text
+    //   if (userInput !== null) {
+    //     polygons_tag_text[current_polygon_index] = userInput;
+    //     drawPolygons();
+    //   }
+    // }
     if (edit_mode){
-      // Prompt the user for text input and store the result in a variable
-      var userInput = prompt("Enter text:");
+      //Timer for hiding the menu after a while
+      let timer;
+      // Get the button element
+      var button = document.getElementById('edit_tag');
 
-      // Check if the user entered text
-      if (userInput !== null) {
-        polygons_tag_text[current_polygon_index] = userInput;
-        drawPolygons();
+      // Create the tab list window
+      var tagsListWindow = document.createElement('div');
+      tagsListWindow.id = 'tagsListWindow';
+
+      // Create a heading or label for the options
+      const heading = document.createElement('h3');
+      heading.textContent = 'Choose Tag:';
+      tagsListWindow.appendChild(heading);
+
+
+
+      // Create a list of tab names as options
+      var options = [];
+      Tags_List.forEach(function(tag) {
+        let option = document.createElement('div');
+        option.textContent = tag;
+        option.classList.add('tags-menu'); // Add the 'option' class
+
+        // Add a click event listener to each option
+        option.addEventListener('click', function() {
+          polygons_tag_text[current_polygon_index] = option.textContent;
+          drawPolygons();
+          // Close the tab list window
+          tagsListWindow.style.display = 'none';
+          document.body.removeChild(tagsListWindow);
+        });
+        options.push(option);
+      });
+
+      // Append the options to the tab list window
+      options.forEach(function(option) {
+        tagsListWindow.appendChild(option);
+      });
+
+      function positionPopup() {
+        // Position the tab list window below the button
+        var buttonRect = button.getBoundingClientRect();
+        const scrollY = window.scrollY;
+        tagsListWindow.style.top = buttonRect.bottom+scrollY + 'px';
+        tagsListWindow.style.left = buttonRect.left + 'px';
       }
+      // Position the pop-up initially
+      positionPopup();
+
+      // Add a scroll event listener to adjust the pop-up position dynamically
+      window.addEventListener("scroll", positionPopup);
+
+
+      // Display the tab list window
+      tagsListWindow.style.display = 'block';
+
+      // Add a mouseout event listener to the tab list window
+      tagsListWindow.addEventListener('mouseout', function(event) {
+        var relatedTarget = event.relatedTarget;
+        if (!relatedTarget || !tagsListWindow.contains(relatedTarget)) {
+          // Mouse is out of the tab list window, so hide it
+          tagsListWindow.style.display = 'none';
+          document.body.removeChild(tagsListWindow);
+        }
+      });
+
+      // Add a mouseover event listener to apply the hover effect
+      tagsListWindow.addEventListener('mouseover', function(event) {
+        var target = event.target;
+        clearTimeout(timer);
+        if (target.classList.contains('tags-menu')) {
+          // Apply the hover class when hovering over an option
+          target.classList.add('hovered');
+        }
+
+      });
+
+      // Add a mouseout event listener to remove the hover effect
+      tagsListWindow.addEventListener('mouseout', function(event) {
+        var target = event.target;
+        if (target.classList.contains('tags-menu')) {
+          // Remove the hover class when moving away from an option
+          target.classList.remove('hovered');
+        }
+      });
+
+      // Mouse is out of the options window, so start a timer to hide it after 1.9 seconds
+      timer = setTimeout(function () {
+        tagsListWindow.style.display = 'none';
+        document.body.removeChild(tagsListWindow);
+      }, 1900);
+
+
+      // Append the tab list window to the document
+      document.body.appendChild(tagsListWindow);
     }
   });
 
@@ -983,7 +1085,162 @@ $(document).ready(function(){
     }
   });
 
+  // Tag Panel button
+  $("#tags-panel").click(function() {
+    if (!tags_edit_mode) {
+      tags_edit_mode = true;
+      // Function to create the tag list window
+      function createTagListWindow() {
+        // Get the button element
+        let button = document.getElementById('tags-panel');
+        //paint the button
+        button.style.backgroundColor='orange';
+        button.style.color='white';
+        // Create the tab list window
+        let tagsPanelWindow = document.createElement('div');
+        tagsPanelWindow.id = 'tagsPanelWindow';
+
+        // Create a heading or label for the options
+        const heading = document.createElement('h3');
+        heading.textContent = 'Tags List:';
+        tagsPanelWindow.appendChild(heading);
+
+        // 1 Create a list of Tag names as options
+        let options = [];
+        for (let j = 0; j < Tags_List.length; j++) {
+          var option = document.createElement('div');
+
+          // 1.1 Create a checkbox for each layer (tab)
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.dataset.id = j; // Unique ID for each checkbox
+          checkbox.style.float = 'left'; // Align checkbox to the left
+          checkbox.checked = false;
+          option.appendChild(checkbox);
+
+          // 1.2 Create a label for the checkbox
+          var label = document.createElement('label');
+          label.textContent = Tags_List[j];
+          label.style.display = "flex";
+          option.appendChild(label);
+          option.classList.add('tabs-menu'); // Add the 'option' class
+          options.push(option);
+        }
+
+        // Append the options to the tag list window
+        options.forEach(function(option) {
+          tagsPanelWindow.appendChild(option);
+        });
+
+        // 2 Create a container for "Add Tag" and "Delete Selected" buttons
+        var buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('button-container-5');
+        // 2.1 Create "Add Tag" button
+        var addTag = document.createElement('button');
+        addTag.textContent = 'Add Tag';
+        addTag.style.marginTop='10px';
+        addTag.style.marginRight='5px';
+        addTag.addEventListener('click', function() {
+          let userInput = prompt("Enter Tag:");
+          Tags_List.push(userInput);
+          //Update window after the adding of the tag by creating it again
+          tagsPanelWindow.style.display = 'none';
+          document.body.removeChild(tagsPanelWindow);
+          createTagListWindow();
+        });
+        buttonContainer.appendChild(addTag);
+
+        // 2.2 Create a "Delete Selected" button
+        var deleteSelected = document.createElement('button');
+        deleteSelected.textContent = 'Delete Selected';
+        deleteSelected.addEventListener('click', function() {
+          // Iterate through checkboxes and uncheck them
+          options.forEach(function(option) {
+            var checkbox = option.querySelector('input[type="checkbox"]');
+            const isChecked = checkbox.checked;
+            // Perform actions based on whether the checkbox is checked
+            if (isChecked) {
+              checkbox.checked = false;
+              let indexOfItemToRemove=checkbox.dataset.id;
+              // Remove tag from list
+              Tags_List.splice(indexOfItemToRemove, 1);
+            }
+          });
+          //Update window after the removal of the tags by creating it again
+          tagsPanelWindow.style.display = 'none';
+          document.body.removeChild(tagsPanelWindow);
+          createTagListWindow();
+        });
+        buttonContainer.appendChild(deleteSelected);
+
+
+        // Append the button container to the tag list window
+        tagsPanelWindow.appendChild(buttonContainer);
+
+
+        function positionTagsPopup() {
+          // Position the tab list window below the button
+          var buttonRect = button.getBoundingClientRect();
+          const scrollY = window.scrollY;
+          tagsPanelWindow.style.top = buttonRect.bottom+scrollY + 'px';
+          tagsPanelWindow.style.left = buttonRect.left + 'px';
+        }
+        // Position the pop-up initially
+        positionTagsPopup();
+
+        // Add a scroll event listener to adjust the pop-up position dynamically
+        window.addEventListener("scroll", positionTagsPopup);
+
+
+        // Display the tab list window
+        tagsPanelWindow.style.display = 'block';
+
+
+        // / Create a close button
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'x';
+        closeButton.classList.add('close-button'); // You can style this button with CSS
+
+        // Add an event listener to the close button to hide the window
+        closeButton.addEventListener('click', function() {
+          button.style.backgroundColor='white';
+          button.style.color='black';
+          tagsPanelWindow.style.display = 'none';
+          document.body.removeChild(tagsPanelWindow);
+          tags_edit_mode=false;
+        });
+
+        // Append the close button to the tab list window
+        tagsPanelWindow.appendChild(closeButton);
+        // Append the tab list window to the document
+        document.body.appendChild(tagsPanelWindow);
+      }
+      createTagListWindow();
+
+    }
+  });
+
   // ---------------------------------------- Auxiliary functions ----------------------------------------
+  //Function to measure total Tabs width and adjust visuals according to it for add/close tab
+  function totalTabsWidthAdjust(){
+    const tabs = document.querySelectorAll('.tab');
+    // Initialize a variable to store the total width
+    let totalWidth = 0;
+
+    // Loop through each tab and add its width to the total width
+    tabs.forEach(tab => {
+      totalWidth += tab.offsetWidth;
+    });
+    if (totalWidth>=canvas_width){
+      document.querySelector(".slider").style.top='85px';
+      document.getElementById("v_mode").style.top='57px';
+
+    }
+    else{
+      document.querySelector(".slider").style.top='50px';
+      document.getElementById("v_mode").style.top='22px';
+    }
+  }
 
   //1. Supporting the "switch layer" button
   //1.1 return tabs name without the x (close button) char

@@ -216,7 +216,7 @@ body
   height: 2px;
   width: 250px;
   background: black;
-  margin: 7px;
+  margin: 4px;
 }
 
 .group
@@ -265,6 +265,8 @@ body
   width: 240px;
 
 }
+
+
 /* Style for the container div */
 .button-container-3 {
   display: flex;
@@ -325,7 +327,7 @@ body
 }
 
 /* ---------------------------Switch Layer & Layers Panel buttons (Menus with layers list)--------------------------- */
-#tabListWindowAndCheckboxes,#tabListWindow {
+#tabListWindowAndCheckboxes,#tabListWindow,#tagsPanelWindow,#tagsListWindow {
   display: none;
   position: absolute;
   border: 1px solid #ccc;
@@ -340,11 +342,19 @@ body
   border-radius: 5px; /* Add rounded corners */
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
-#tabListWindowAndCheckboxes {
+#tabListWindowAndCheckboxes,#tagsPanelWindow {
   width: 230px;
+  max-height: 250px;
+
 }
 #tabListWindow {
   width: 150px;
+  max-height: 160px;
+}
+
+#tagsListWindow{
+  width: 120px;
+  max-height: 160px;
 }
 
 /* Style for the hovered row for Switch Layer button */
