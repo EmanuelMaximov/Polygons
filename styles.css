@@ -79,7 +79,7 @@ body
   z-index: 1; /* Ensure the element is above the canvas */
   font-style: italic;
   top: 22px; /* Adjust the top position as needed */
-  right: -20px; /* Adjust the right position as needed */
+  right: -15px; /* Adjust the right position as needed */
 }
 
 /*zoom slider*/
@@ -370,7 +370,9 @@ h3 {
   color: #898989;
 }
 
-
+.checkbox-style{
+  cursor: pointer;
+}
 /*  close button for Display Panel button */
 .close-button {
   position: absolute;

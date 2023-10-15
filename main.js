@@ -8,7 +8,8 @@ let layer_index=0;
 let TabsID=0;
 // Context menu for renaming a tab name
 let contextMenu = null;
-let Tags_List=["Title","Main text","Graphics", "Line","Marginal Notes","Paper's Editors"];
+let Tags_List={0: "Title",1: "Main text",2: "Graphics", 3:"Line",4:"Marginal Notes",5:"Paper's Editors"};
+let TagsID=5;
 
 
 //Polygons related vars
@@ -720,16 +721,6 @@ $(document).ready(function(){
 
   //Edit tag name button
   $("#edit_tag").click(function() {
-    // if (edit_mode){
-    //   // Prompt the user for text input and store the result in a variable
-    //   var userInput = prompt("Enter text:");
-    //
-    //   // Check if the user entered text
-    //   if (userInput !== null) {
-    //     polygons_tag_text[current_polygon_index] = userInput;
-    //     drawPolygons();
-    //   }
-    // }
     if (edit_mode){
       //Timer for hiding the menu after a while
       let timer;
@@ -749,9 +740,9 @@ $(document).ready(function(){
 
       // Create a list of tab names as options
       var options = [];
-      Tags_List.forEach(function(tag) {
+      for (const key in Tags_List){
         let option = document.createElement('div');
-        option.textContent = tag;
+        option.textContent = Tags_List[key];
         option.classList.add('tags-menu'); // Add the 'option' class
 
         // Add a click event listener to each option
@@ -763,7 +754,7 @@ $(document).ready(function(){
           document.body.removeChild(tagsListWindow);
         });
         options.push(option);
-      });
+      }
 
       // Append the options to the tab list window
       options.forEach(function(option) {
@@ -978,6 +969,7 @@ $(document).ready(function(){
           checkbox.dataset.tabId = tabId; // Unique ID for each checkbox
           checkbox.style.float = 'left'; // Align checkbox to the left
           checkbox.checked = false;
+          checkbox.classList.add('checkbox-style');
           // Add an event listener to the checkbox
           checkbox.addEventListener('change', function(event) {
             const checkboxID = event.target.dataset.tabId;
@@ -1107,20 +1099,21 @@ $(document).ready(function(){
 
         // 1 Create a list of Tag names as options
         let options = [];
-        for (let j = 0; j < Tags_List.length; j++) {
+        for (const key in Tags_List){
           var option = document.createElement('div');
 
           // 1.1 Create a checkbox for each layer (tab)
           var checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
-          checkbox.dataset.id = j; // Unique ID for each checkbox
+          checkbox.dataset.id = key; // Unique ID for each checkbox
           checkbox.style.float = 'left'; // Align checkbox to the left
           checkbox.checked = false;
+          checkbox.classList.add('checkbox-style');
           option.appendChild(checkbox);
 
           // 1.2 Create a label for the checkbox
           var label = document.createElement('label');
-          label.textContent = Tags_List[j];
+          label.textContent = Tags_List[key];
           label.style.display = "flex";
           option.appendChild(label);
           option.classList.add('tabs-menu'); // Add the 'option' class
@@ -1142,7 +1135,8 @@ $(document).ready(function(){
         addTag.style.marginRight='5px';
         addTag.addEventListener('click', function() {
           let userInput = prompt("Enter Tag:");
-          Tags_List.push(userInput);
+          TagsID++;
+          Tags_List[TagsID]=userInput;
           //Update window after the adding of the tag by creating it again
           tagsPanelWindow.style.display = 'none';
           document.body.removeChild(tagsPanelWindow);
@@ -1161,9 +1155,8 @@ $(document).ready(function(){
             // Perform actions based on whether the checkbox is checked
             if (isChecked) {
               checkbox.checked = false;
-              let indexOfItemToRemove=checkbox.dataset.id;
-              // Remove tag from list
-              Tags_List.splice(indexOfItemToRemove, 1);
+              let idOfItemToRemove=checkbox.dataset.id;
+              delete Tags_List[idOfItemToRemove];
             }
           });
           //Update window after the removal of the tags by creating it again
@@ -1231,15 +1224,12 @@ $(document).ready(function(){
     tabs.forEach(tab => {
       totalWidth += tab.offsetWidth;
     });
-    if (totalWidth>=canvas_width){
-      document.querySelector(".slider").style.top='85px';
-      document.getElementById("v_mode").style.top='57px';
 
-    }
-    else{
-      document.querySelector(".slider").style.top='50px';
-      document.getElementById("v_mode").style.top='22px';
-    }
+    const multi=Math.floor(totalWidth/canvas_width);
+    const tabHeight=35;
+    document.querySelector(".slider").style.top=50+(tabHeight*multi)+'px';
+    document.getElementById("v_mode").style.top=22+(tabHeight*multi)+'px';
+    document.getElementById("e_mode").style.top=40+(tabHeight*multi)+'px';
   }
 
   //1. Supporting the "switch layer" button
