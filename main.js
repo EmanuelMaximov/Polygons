@@ -224,7 +224,7 @@ $(document).ready(function(){
     }
     contextMenu = document.createElement("div");
     contextMenu.className = "context-menu-container"; // Add a container class
-    contextMenu.innerHTML = '<div class="context-menu">Rename tab name</div>';
+    contextMenu.innerHTML = '<div class="context-menu">Rename Tab</div>';
     document.body.appendChild(contextMenu);
 
     contextMenu.style.left = event.pageX + "px";
@@ -1135,12 +1135,14 @@ $(document).ready(function(){
         addTag.style.marginRight='5px';
         addTag.addEventListener('click', function() {
           let userInput = prompt("Enter Tag:");
-          TagsID++;
-          Tags_List[TagsID]=userInput;
-          //Update window after the adding of the tag by creating it again
-          tagsPanelWindow.style.display = 'none';
-          document.body.removeChild(tagsPanelWindow);
-          createTagListWindow();
+          if (userInput!== null){
+            TagsID++;
+            Tags_List[TagsID]=userInput;
+            //Update window after the adding of the tag by creating it again
+            tagsPanelWindow.style.display = 'none';
+            document.body.removeChild(tagsPanelWindow);
+            createTagListWindow();
+          }
         });
         buttonContainer.appendChild(addTag);
 
